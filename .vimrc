@@ -7,6 +7,7 @@ call vundle#begin()
 Plugin 'gmarik/Vundle'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
+Plugin 'scrooloose/nerdcommenter'
 
 let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_compiler_options = ' -ansi -pedantic'
@@ -15,6 +16,7 @@ let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++ -pedantic'
 
 call vundle#end()
 filetype plugin indent on
+filetype plugin on
 
 syntax on
 set number
