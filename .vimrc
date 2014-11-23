@@ -6,20 +6,25 @@ call vundle#begin()
 
 Plugin 'gmarik/Vundle'
 Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
+"Plugin 'scrooloose/syntastic'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'Valloric/YouCompleteMe'
 
-let g:syntastic_c_compiler = 'clang'
-let g:syntastic_c_compiler_options = ' -ansi -pedantic'
-let g:syntastic_cpp_compiler = 'clang++'
-let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++ -pedantic'
+"let g:syntastic_c_compiler = 'clang'
+"let g:syntastic_c_compiler_options = ' -ansi -pedantic'
+"let g:syntastic_cpp_compiler = 'clang++'
+"let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++ -pedantic'
+
+let g:ycm_confirm_extra_conf = 0
+let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+let g:ycm_extra_conf_vim_data = ['&filetype']
 
 call vundle#end()
 filetype plugin indent on
 filetype plugin on
 
 syntax on
+let g:mapleader="\<Space>"
 set backspace=indent,eol,start
 set number
 set ruler
