@@ -8,6 +8,7 @@ Plugin 'gmarik/Vundle'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
 Plugin 'scrooloose/nerdcommenter'
+Plugin 'Valloric/YouCompleteMe'
 
 let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_compiler_options = ' -ansi -pedantic'
