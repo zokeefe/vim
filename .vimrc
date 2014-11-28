@@ -36,6 +36,24 @@ set tabstop=4
 set ignorecase
 set smartcase
 set showmatch
+set wildmenu
+set incsearch
+set hlsearch
+
+highlight clear Todo
+highlight BAD ctermfg=Red guifg=Red
+highlight WARN ctermfg=Yellow guifg=Yellow
+highlight OK ctermfg=Green guifg=Green
+highlight INTERESTING ctermfg=LightBlue guifg=LightBlue
+
+if has("autocmd")
+  if v:version > 701
+    autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\|BUG\)')
+    autocmd Syntax * call matchadd('WARN', '\W\zs\(HACK\)')
+    autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
+    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\)')
+  endif
+endif
 
 nmap <silent> <c-k> :wincmd k<CR>
 nmap <silent> <c-j> :wincmd j<CR>
