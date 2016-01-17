@@ -101,7 +101,7 @@ nmap <silent> <c-[> :cp<CR>
 nmap <silent> <c-\> :ccl<CR>
 " }}}
 " System settings {{{
-"compiler xcodebuild 
+compiler xcodebuild 
 " }}}
 " Backups {{{
 set backup
@@ -114,6 +114,13 @@ set writebackup
 " Misc. {{{
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
+" }}}
+" External configuration {{{
+let b:thisdir=expand("%:p:h")
+let b:vim=b:thisdir."/.vim"
+if (filereadable(b:vim))
+    execute "source ".b:vim
+endif
 " }}}
 
 " vim:foldmethod=marker:foldlevel=0
