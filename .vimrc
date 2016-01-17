@@ -49,12 +49,13 @@ set hlsearch					" highligh searches
 set backspace=indent,eol,start	" allow backspacing over everything in insert mode
 set autoindent					" copy indent from current line when starting new line
 set shiftwidth=4				" spaces for autoindents
-set tabstop=4					" umber of visual spaces per tab 
-set softtabstop=4				" number of spaces in tab when editingn
+set tabstop=4					" number of visual spaces per tab 
+"set softtabstop=4				" number of spaces in tab when editingn
+set noexpandtab
 " }}}
 " Colors {{{
 syntax enable
-highlight Search cterm=bold ctermfg=darkred ctermbg=yellow
+highlight Search cterm=bold gui=bold ctermfg=darkred guifg=darkred ctermbg=yellow guibg=yellow
 
 highlight clear Todo
 highlight BAD ctermfg=Red guifg=Red
@@ -64,8 +65,8 @@ highlight INTERESTING ctermfg=LightBlue guifg=LightBlue
 
 if has("gui_running")
 	highlight Normal guifg=grey guibg=#251625
+	let macvim_skip_colorscheme=1
 endif
-let macvim_skip_colorscheme=1
 " }}}
 " Autogroups {{{
 if has("autocmd")
@@ -100,9 +101,9 @@ nmap <silent> <c-h> :wincmd h<CR>
 nmap <silent> <c-l> :wincmd l<CR>
 
 " Quickfix errors
-nmap <silent> <c-]> :cn<CR>
-nmap <silent> <c-[> :cp<CR>
-nmap <silent> <c-\> :ccl<CR>
+nmap <silent> <c-n> :cn<CR>
+nmap <silent> <c-m> :cp<CR>
+nmap <silent> <c-space> :ccl<CR>
 
 " Swapping windows
 nmap <silent> <c-s> :wincmd r<CR>
