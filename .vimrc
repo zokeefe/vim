@@ -5,11 +5,12 @@ filetype off					" Required during Vundle launch
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
-Plugin 'gmarik/Vundle'
+Plugin 'VundleVim/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'ctrlpvim/ctrlp.vim'
 
 call vundle#end()
+filetype plugin indent on		" Required, plugins available after
 " }}}
 " CtrlP {{{
 let g:ctrlp_map = '<c-p>'
@@ -89,16 +90,23 @@ endif
 " Leader shortcuts {{{
 let g:mapleader=","
 nmap <Leader>b :make<CR>			
-nmap <Leader>b! :make!<CR>			
 " }}}
 " Keybindings {{{
+
+" Moving between windows
 nmap <silent> <c-k> :wincmd k<CR>
 nmap <silent> <c-j> :wincmd j<CR>
 nmap <silent> <c-h> :wincmd h<CR>
 nmap <silent> <c-l> :wincmd l<CR>
+
+" Quickfix errors
 nmap <silent> <c-]> :cn<CR>
 nmap <silent> <c-[> :cp<CR>
 nmap <silent> <c-\> :ccl<CR>
+
+" Swapping windows
+nmap <silent> <c-s> :wincmd r<CR>
+
 " }}}
 " System settings {{{
 compiler xcodebuild 
