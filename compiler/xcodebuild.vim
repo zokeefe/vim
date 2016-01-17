@@ -12,20 +12,23 @@ endif
 
 let s:save_cpo = &cpo
 set cpo&vim
+"set cpo-=C
 
 CompilerSet makeprg=sh\ build.sh
-
 CompilerSet errorformat=
 	\%f:%l:%c:{%*[^}]}:\ error:\ %m,
 	\%f:%l:%c:{%*[^}]}:\ fatal\ error:\ %m,
 	\%f:%l:%c:{%*[^}]}:\ warning:\ %m,
+	\%f:%l:%c:%.%#\ error:\ %m,
+	\%f:%l:%c:%.%#\ warning:\ %m,
 	\%f:%l:%c:\ error:\ %m,
 	\%f:%l:%c:\ fatal\ error:\ %m,
 	\%f:%l:%c:\ warning:\ %m,
 	\%f:%l:\ Error:\ %m,
 	\%f:%l:\ error:\ %m,
 	\%f:%l:\ fatal\ error:\ %m,
-	\%f:%l:\ warning:\ %m 
+	\%f:%l:\ warning:\ %m,
+	\%-G%.%#
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
