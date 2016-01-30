@@ -115,10 +115,6 @@ nmap <Leader>b :make<CR>
 " }}}
 " Keybindings {{{
 
-" Allow mapping of <c-space> in all terminals
-inoremap <c-space> <c-x><c-o>
-inoremap <c-@> <c-space>
-
 " Moving between windows
 nmap <silent> <c-k> :wincmd k<CR>
 nmap <silent> <c-j> :wincmd j<CR>
@@ -133,9 +129,9 @@ nmap <silent> <c-n> :cn<CR>
 nmap <silent> <c-m> :cp<CR>
 nmap <silent> <c-space> :ccl<CR>
 
-" }}}
-" System settings {{{
-compiler xcodebuild 
+" Workaround for console vim on OS X Terminal.app
+noremap <NUL> :ccl<CR>
+
 " }}}
 " Backups {{{
 set backup
@@ -144,8 +140,10 @@ set directory=~/.vim/tmp
 set writebackup
 " }}}
 " Custom Functions {{{
+
 " }}}
 " Misc. {{{
+
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
@@ -157,6 +155,7 @@ if has("gui_macvim")			" set macvim specific stuff
 	set guioptions-=r			" remove macvim right scrollbar extra
 	"set lines=999 columns=999	" start fullscreen
 endif
+
 " }}}
 " External configuration {{{
 let b:thisdir=expand("%:p:h")
@@ -164,6 +163,11 @@ let b:vim=b:thisdir."/.vim"
 if (filereadable(b:vim))
     execute "source ".b:vim
 endif
+" }}}
+" Compilation {{{
+"
+set makeprg=sh\ build.sh
+
 " }}}
 
 " vim:foldmethod=marker:foldlevel=0

@@ -14,7 +14,6 @@ let s:save_cpo = &cpo
 set cpo&vim
 "set cpo-=C
 
-CompilerSet makeprg=sh\ build.sh
 CompilerSet errorformat=
 	\%f:%l:%c:{%*[^}]}:\ error:\ %m,
 	\%f:%l:%c:{%*[^}]}:\ fatal\ error:\ %m,
