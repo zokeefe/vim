@@ -24,7 +24,8 @@ filetype plugin on
 filetype indent on
 " }}}
 " UI {{{
-set number						" show line numbers
+"set number						" show line numbers
+set nonumber					" hide line numbers
 set ruler						" show cursor position in status bar
 set showcmd						" show typed command in status bar
 set ignorecase					" case insensitive searching
@@ -33,6 +34,7 @@ set showmatch					" show matching bracket
 set wildmenu					" completion with menu
 set laststatus=2				" use 2 lines for status bar
 set lazyredraw					" redraw only when we need to
+set fillchars+=vert:\ 			" remove '|' character in vsplit line
 "set cursorline
 " }}}
 " Folding {{{
@@ -53,30 +55,33 @@ set tabstop=4					" number of visual spaces per tab
 "set softtabstop=4				" number of spaces in tab when editingn
 set noexpandtab
 " }}}
+" Font {{{
+
+set guifont=Liberation\ Mono\ Regular:h11
+
+" }}}
 " Colors {{{
+
 syntax enable
-highlight Search cterm=bold gui=bold ctermfg=darkred guifg=darkred ctermbg=yellow guibg=yellow
+colorscheme cmuratori
 
 highlight clear Todo
-highlight BAD ctermfg=Red guifg=Red
-highlight WARN ctermfg=Yellow guifg=Yellow
-highlight OK ctermfg=Green guifg=Green
-highlight INTERESTING ctermfg=LightBlue guifg=LightBlue
+highlight BAD ctermfg=Red guifg=Red gui=bold,underline
+highlight IMPORTANT ctermfg=Yellow guifg=Yellow gui=bold,underline
+highlight OK ctermfg=DarkGreen guifg=DarkGreen gui=bold,underline
+highlight INTERESTING ctermfg=LightBlue guifg=LightBlue gui=bold,underline
 
-if has("gui_running")
-	highlight Normal guifg=grey guibg=#251625
-	let macvim_skip_colorscheme=1
-endif
+
 " }}}
 " Autogroups {{{
 if has("autocmd")
   if v:version > 701
 
 	" Highlighting keywords
-    autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\|BUG\)')
-    autocmd Syntax * call matchadd('WARN', '\W\zs\(HACK\|IMPORTANT\|WARNING\)')
+    autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\)')
+    autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
-    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\)')
+    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
 
 	" Automatically open, but don't go to, Quickfix window
 	autocmd QUickFixCmdPost [^l]* nested copen
@@ -85,12 +90,25 @@ if has("autocmd")
 	" Automatically move Quickfix window to span bottom
 	autocmd Filetype qf wincmd J
 
+	" Show cursorline in current window only
+	augroup CursorLine
+		au!
+		au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+		au WinLeave * setlocal nocursorline
+	augroup END
+
   endif
 endif
 " }}}
 " Leader shortcuts {{{
 let g:mapleader=","
-nmap <Leader>b :make<CR>			
+
+" Make
+nmap <Leader>b :make<CR>
+
+" Swapping windows
+nmap <Leader>s :wincmd r<CR>
+
 " }}}
 " Keybindings {{{
 
@@ -104,9 +122,7 @@ nmap <silent> <c-l> :wincmd l<CR>
 nmap <silent> <c-n> :cn<CR>
 nmap <silent> <c-m> :cp<CR>
 nmap <silent> <c-space> :ccl<CR>
-
-" Swapping windows
-nmap <silent> <c-s> :wincmd r<CR>
+map <silent> <c-s> :windcmd r<CR>
 
 " }}}
 " System settings {{{
@@ -123,6 +139,12 @@ set writebackup
 " Misc. {{{
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
+set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
+if has("gui_macvim")			" set macvim specific stuff
+	let macvim_skip_colorscheme=1
+	set guioptions-=L
+	set guioptions-=R
+endif
 " }}}
 " External configuration {{{
 let b:thisdir=expand("%:p:h")
