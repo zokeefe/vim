@@ -97,6 +97,9 @@ if has("autocmd")
 		au WinLeave * setlocal nocursorline
 	augroup END
 
+	" VSplit window on startup
+	"autocmd VimEnter * vsplit
+
   endif
 endif
 " }}}
@@ -107,10 +110,14 @@ let g:mapleader=","
 nmap <Leader>b :make<CR>
 
 " Swapping windows
-nmap <Leader>s :wincmd r<CR>
+"nmap <Leader>s :wincmd r<CR>
 
 " }}}
 " Keybindings {{{
+
+" Allow mapping of <c-space> in all terminals
+inoremap <c-space> <c-x><c-o>
+inoremap <c-@> <c-space>
 
 " Moving between windows
 nmap <silent> <c-k> :wincmd k<CR>
@@ -118,11 +125,13 @@ nmap <silent> <c-j> :wincmd j<CR>
 nmap <silent> <c-h> :wincmd h<CR>
 nmap <silent> <c-l> :wincmd l<CR>
 
+" Swapping  windows
+nmap <silent> <c-s> :wincmd r<CR>
+
 " Quickfix errors
 nmap <silent> <c-n> :cn<CR>
 nmap <silent> <c-m> :cp<CR>
 nmap <silent> <c-space> :ccl<CR>
-map <silent> <c-s> :windcmd r<CR>
 
 " }}}
 " System settings {{{
@@ -142,8 +151,11 @@ set t_vb=						" set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
 if has("gui_macvim")			" set macvim specific stuff
 	let macvim_skip_colorscheme=1
-	set guioptions-=L
-	set guioptions-=R
+	set guioptions-=L			" remove macvim left scrollbar
+	set guioptions-=R			" remove macvim right scrollbar
+	set guioptions-=l			" remove macvim left scrollbar extra
+	set guioptions-=r			" remove macvim right scrollbar extra
+	"set lines=999 columns=999	" start fullscreen
 endif
 " }}}
 " External configuration {{{
