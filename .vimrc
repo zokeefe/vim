@@ -8,6 +8,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'ctrlpvim/ctrlp.vim'
+Plugin 'mtth/scratch.vim'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
