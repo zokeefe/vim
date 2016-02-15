@@ -1,9 +1,16 @@
 set nocompatible				" Vi iMproved
 
 " Plugins {{{
-filetype off					" Required during Vundle launch
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+
+filetype off					" Required, plugins available after
+
+if has("win32") || has("win64")
+	set rtp+=$HOME/vimfiles/bundle/Vundle.vim/
+	call vundle#begin('$USERPROFILE/vimfiles/bundle/')
+else
+	set rtp+=~/.vim/bundle/Vundle.vim
+	call vundle#begin()
+endif
 
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
@@ -14,6 +21,7 @@ Plugin 'incsearch.vim'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
+
 " }}}
 " CtrlP {{{
 let g:ctrlp_map = '<c-p>'
@@ -49,7 +57,7 @@ set laststatus=2				" use 2 lines for status bar
 set lazyredraw					" redraw only when we need to
 set fillchars+=vert:\ 			" remove '|' character in vsplit line
 set completeopt=menuone,preview " preview window always show prototype
-"set cursorline
+"set cursorline					" show cursor line
 " }}}
 " Editor settings {{{
 set backspace=indent,eol,start	" allow backspacing over everything in insert mode
@@ -126,6 +134,10 @@ if has("autocmd")
 	" Jump to last known position in file
 	au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
+	" Try to prvent bell and screen flash for GUI
+	autocmd GUIEnter * set vb t_vb=
+	autocmd VimEnter * set vb t_vb=
+
   endif
 endif
 " }}}
@@ -173,8 +185,13 @@ nnoremap <F5> :buffers<CR>:buffer<Space>
 " }}}
 " Backups {{{
 set backup
-set backupdir=~/.vim/backup
-set directory=~/.vim/tmp
+if has("win32") || has("win64")
+	set backupdir=~/vimfiles/backup
+	set directory=~/vimfiles/tmp
+else
+	set backupdir=~/.vim/backup
+	set directory=~/.vim/tmp
+endif
 set writebackup
 " }}}
 " Custom Functions {{{
@@ -185,15 +202,21 @@ set writebackup
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
-if has("gui_macvim")			" set macvim specific stuff
-	let macvim_skip_colorscheme=1
+if has("gui_running")
 	set guioptions-=L			" remove macvim left scrollbar
 	set guioptions-=R			" remove macvim right scrollbar
 	set guioptions-=l			" remove macvim left scrollbar extra
 	set guioptions-=r			" remove macvim right scrollbar extra
-	"set lines=999 columns=999	" start fullscreen
+	set guioptions-=m			" remove gvim menu 
+	set guioptions-=T			" remove gvim toolbar 
 endif
-
+if has("gui_macvim")			" set macvim specific stuff
+	let macvim_skip_colorscheme=1
+	set lines=999 columns=999	" start fullscreen
+endif
+if has("win32") || has("win64")
+	au GUIEnter * simalt ~x
+endif
 " }}}
 " External configuration {{{
 let b:thisdir=expand("%:p:h")
