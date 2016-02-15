@@ -9,6 +9,8 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'mtth/scratch.vim'
+Plugin 'rking/ag.vim'
+Plugin 'incsearch.vim'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -20,6 +22,16 @@ let g:ctrlp_cmd = 'CtrlP'
 " .bzr, or other root markers
 let g:ctrlp_working_path_mode = 'ra'
 " }}}
+" Incsearch {{{
+map /  <Plug>(incsearch-forward)
+let g:incsearch#auto_nohlsearch = 1
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
+"}}}
 " Enable filetype plugins {{{
 filetype plugin on
 filetype indent on
@@ -36,7 +48,16 @@ set wildmenu					" completion with menu
 set laststatus=2				" use 2 lines for status bar
 set lazyredraw					" redraw only when we need to
 set fillchars+=vert:\ 			" remove '|' character in vsplit line
+set completeopt=menuone,preview " preview window always show prototype
 "set cursorline
+" }}}
+" Editor settings {{{
+set backspace=indent,eol,start	" allow backspacing over everything in insert mode
+set autoindent					" copy indent from current line when starting new line
+set shiftwidth=4				" spaces for autoindents
+set tabstop=4					" number of visual spaces per tab
+"set softtabstop=4				" number of spaces in tab when editing
+set noexpandtab
 " }}}
 " Folding {{{
 set foldenable					" enable folding
@@ -47,14 +68,6 @@ set foldmethod=indent			" fold based on indent level
 " Searching settings {{{
 set incsearch					" show search matches during typing
 set hlsearch					" highligh searches
-" }}}
-" Editor settings {{{
-set backspace=indent,eol,start	" allow backspacing over everything in insert mode
-set autoindent					" copy indent from current line when starting new line
-set shiftwidth=4				" spaces for autoindents
-set tabstop=4					" number of visual spaces per tab 
-"set softtabstop=4				" number of spaces in tab when editingn
-set noexpandtab
 " }}}
 " Font {{{
 
@@ -74,7 +87,7 @@ highlight INTERESTING ctermfg=LightBlue guifg=LightBlue gui=bold,underline
 
 
 " }}}
-" Autogroups {{{
+" Autocmds {{{
 if has("autocmd")
   if v:version > 701
 
@@ -100,6 +113,18 @@ if has("autocmd")
 
 	" VSplit window on startup
 	"autocmd VimEnter * vsplit
+	
+	" Prevent auto-commenting newlines after comment
+	au FileType * set fo-=c fo-=r fo-=o
+	
+	" Automatically close preview window
+	autocmd CompleteDone * pclose
+
+	" Auto generate ctags
+	au BufWritePost *.c,*.cpp,*.h silent! !ctags -R &
+
+	" Jump to last known position in file
+	au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
   endif
 endif
@@ -109,6 +134,12 @@ let g:mapleader=","
 
 " Make
 nmap <Leader>b :make<CR>
+
+" Ctags + CtrlP
+nnoremap <leader>. :CtrlPTag<cr>
+
+" Jump between .c and .h files
+nnoremap <leader>s :e %:p:s,.h$,.X123X,:s,.c$,.h,:s,.X123X$,.c,<CR>
 
 " Swapping windows
 "nmap <Leader>s :wincmd r<CR>
@@ -132,6 +163,12 @@ nmap <silent> <c-space> :ccl<CR>
 
 " Workaround for console vim on OS X Terminal.app
 noremap <NUL> :ccl<CR>
+
+" Turn off highlighting after found target
+"nnoremap <silent><CR> :noh<CR><CR>
+
+" F5 shows list of buffers
+nnoremap <F5> :buffers<CR>:buffer<Space>
 
 " }}}
 " Backups {{{
