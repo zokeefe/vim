@@ -129,7 +129,7 @@ if has("autocmd")
 	autocmd CompleteDone * pclose
 
 	" Auto generate ctags
-	au BufWritePost *.c,*.cpp,*.h silent! !ctags -R &
+	au BufWritePost *.c,*.cpp,*.h silent! !ctags -f .tags -R &
 
 	" Jump to last known position in file
 	au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
@@ -199,6 +199,7 @@ set writebackup
 " }}}
 " Misc. {{{
 
+set shell=/bin/sh				" set shell to sh
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
