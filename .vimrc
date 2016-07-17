@@ -199,6 +199,17 @@ endif
 set writebackup
 " }}}
 " Custom Functions {{{
+function MakePrgBuildSh()
+	set makeprg=sh\ build.sh
+endfunction
+
+function MakePrgClangC()
+	set makeprg=clang\ -ansi\ -pedantic\ -pedantic-errors\ %
+endfunction
+
+function MakePrgClangCpp()
+	set makeprg=clang++\ -std=c++11\ -stdlib=libc++\ -pedantic\ -pedantic-errors\ %
+endfunction
 
 " }}}
 " Misc. {{{
