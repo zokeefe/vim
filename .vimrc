@@ -18,6 +18,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'mtth/scratch.vim'
 Plugin 'rking/ag.vim'
 Plugin 'incsearch.vim'
+Plugin 'gilligan/vim-lldb'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -180,7 +181,10 @@ noremap <NUL> :ccl<CR>
 "nnoremap <silent><CR> :noh<CR><CR>
 
 " F5 shows list of buffers
-nnoremap <F5> :buffers<CR>:buffer<Space>
+nnoremap <leader>l :buffers<CR>:buffer<Space>
+
+" Goto last used buffer
+nmap <Tab> :b#<CR>
 
 " }}}
 " Backups {{{
@@ -218,6 +222,7 @@ endif
 if has("win32") || has("win64")
 	au GUIEnter * simalt ~x
 endif
+set tags=./.tags,.tags;			" set tag file search
 " }}}
 " External configuration {{{
 let b:thisdir=expand("%:p:h")
