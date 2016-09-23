@@ -104,7 +104,7 @@ if has("autocmd")
     autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\)')
     autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
-    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
+    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\|TEMP\)')
 
 	" Automatically open, but don't go to, Quickfix window
 	autocmd QUickFixCmdPost [^l]* nested copen
@@ -149,13 +149,19 @@ let g:mapleader=","
 nmap <Leader>b :make<CR>
 
 " Ctags + CtrlP
-nnoremap <leader>. :CtrlPTag<cr>
+nnoremap <leader>. :CtrlPTag<CR>
 
 " Jump between .c and .h files
 nnoremap <leader>s :e %:p:s,.h$,.X123X,:s,.c$,.h,:s,.X123X$,.c,<CR>
 
 " Swapping windows
 "nmap <Leader>s :wincmd r<CR>
+
+" Ag current word
+nnoremap <leader>a :Ag <cword><CR>
+
+" Show list of buffers
+nnoremap <leader>l :buffers<CR>:buffer<Space>
 
 " }}}
 " Keybindings {{{
@@ -180,8 +186,6 @@ noremap <NUL> :ccl<CR>
 " Turn off highlighting after found target
 "nnoremap <silent><CR> :noh<CR><CR>
 
-" F5 shows list of buffers
-nnoremap <leader>l :buffers<CR>:buffer<Space>
 
 " Goto last used buffer
 nmap <Tab> :b#<CR>
