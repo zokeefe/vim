@@ -1,11 +1,22 @@
 set nocompatible				" Vi iMproved
 
+" Environment {{{
+
+let g:is_windows = 0
+if has("win32") || has("win64")
+	let g:is_windows = 1
+endif
+
+let g:project_uni = 1
+let g:project = g:project_uni
+
+"}}}
 " Plugins {{{
 
 filetype off					" Required, plugins available after
 
-if has("win32") || has("win64")
-	set rtp+=$HOME/vimfiles/bundle/Vundle.vim/
+if g:is_windows 
+	set rtp+=$USERPROFILE/vimfiles/bundle/Vundle.vim/
 	call vundle#begin('$USERPROFILE/vimfiles/bundle/')
 else
 	set rtp+=~/.vim/bundle/Vundle.vim
@@ -15,10 +26,11 @@ endif
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'mtth/scratch.vim'
+"Plugin 'mtth/scratch.vim'
 Plugin 'rking/ag.vim'
-Plugin 'incsearch.vim'
-Plugin 'gilligan/vim-lldb'
+"Plugin 'incsearch.vim'
+"Plugin 'majutsushi/tagbar'
+Plugin 'derekwyatt/vim-fswitch'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -29,18 +41,37 @@ let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 " Nearest ancestor of the current file containing either .git, .hg, .svn,
 " .bzr, or other root markers
-let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_max_depth = 20
+let g:ctrlp_by_filename = 1
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:30,results:30'
+" let g:ctrlp_use_caching = 0
+
+if g:is_windows
+	" dir is faster then ag on windows
+	" won't work with wildignore!
+	" TODO(zach): We should try to use Everything (es) to do this
+	" let g:ctrlp_user_command = 'dir %s /-n /b /s /a-d' 
+endif
+
 " }}}
 " Incsearch {{{
-map /  <Plug>(incsearch-forward)
-let g:incsearch#auto_nohlsearch = 1
-map n  <Plug>(incsearch-nohl-n)
-map N  <Plug>(incsearch-nohl-N)
-map *  <Plug>(incsearch-nohl-*)
-map #  <Plug>(incsearch-nohl-#)
-map g* <Plug>(incsearch-nohl-g*)
-map g# <Plug>(incsearch-nohl-g#)
-"}}}
+"map /  <Plug>(incsearch-forward)
+"let g:incsearch#auto_nohlsearch = 1
+"map n  <Plug>(incsearch-nohl-n)
+"map N  <Plug>(incsearch-nohl-N)
+"map *  <Plug>(incsearch-nohl-*)
+"map #  <Plug>(incsearch-nohl-#)
+"map g* <Plug>(incsearch-nohl-g*)
+"map g# <Plug>(incsearch-nohl-g#)
+" }}}
+" FSwitch {{{
+au! BufEnter *.c let b:fswitchst = 'h,h'
+au! BufEnter *.cpp let b:fswitchst = 'hpp,h'
+au! BufEnter *.m let b:fswitchst = 'h'
+au! BufEnter *.hpp let b:fswitchst = 'cpp'
+au! BufEnter *.h let b:fswitchst = 'c,cpp,m'
+" }}}
 " Enable filetype plugins {{{
 filetype plugin on
 filetype indent on
@@ -77,10 +108,15 @@ set foldmethod=indent			" fold based on indent level
 " Searching settings {{{
 set incsearch					" show search matches during typing
 set hlsearch					" highligh searches
+
+if g:project == g:project_uni
+	set wildignore+=*/data/*,*/bin/*,*/lynx_proto/*,*/prototype/*,*/sharpmake/*,*/projects/*
+endif
+
 " }}}
 " Font {{{
 
-set guifont=Liberation\ Mono\ Regular:h11
+" set guifont=Liberation\ Mono\ Regular:h11
 
 " }}}
 " Colors {{{
@@ -104,7 +140,7 @@ if has("autocmd")
     autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\)')
     autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
-    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\|TEMP\)')
+    autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
 
 	" Automatically open, but don't go to, Quickfix window
 	autocmd QUickFixCmdPost [^l]* nested copen
@@ -130,7 +166,13 @@ if has("autocmd")
 	autocmd CompleteDone * pclose
 
 	" Auto generate ctags
-	au BufWritePost *.c,*.cpp,*.h silent! !ctags -f .tags -R &
+	if g:is_windows 
+		" NOTE(zach): Disabled
+		" au BufWritePost *.c,*.cpp,*.h,*.hpp !dir /b /S *.c *.cpp *.h *.hpp > ctags
+	else
+		" TODO(zach):
+		au BufWritePost *.c,*.cpp,*.h,*.hpp,*.m !ctags -R %
+	endif
 
 	" Jump to last known position in file
 	au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
@@ -152,16 +194,16 @@ nmap <Leader>b :make<CR>
 nnoremap <leader>. :CtrlPTag<CR>
 
 " Jump between .c and .h files
-nnoremap <leader>s :e %:p:s,.h$,.X123X,:s,.c$,.h,:s,.X123X$,.c,<CR>
+"nnoremap <leader>s :e %:p:s,.h$,.X123X,:s,.c$,.h,:s,.X123X$,.c,<CR>
+nmap <Leader>ss :FSHere<CR>
+nmap <Leader>sh :FSLeft<CR>
+nmap <Leader>sl :FSRight<CR>
 
 " Swapping windows
 "nmap <Leader>s :wincmd r<CR>
 
-" Ag current word
-nnoremap <leader>a :Ag <cword><CR>
-
-" Show list of buffers
-nnoremap <leader>l :buffers<CR>:buffer<Space>
+" Generate Ctags
+nnoremap <leader>t :call CtagsGen()<CR>
 
 " }}}
 " Keybindings {{{
@@ -186,39 +228,41 @@ noremap <NUL> :ccl<CR>
 " Turn off highlighting after found target
 "nnoremap <silent><CR> :noh<CR><CR>
 
-
-" Goto last used buffer
-nmap <Tab> :b#<CR>
+" F5 shows list of buffers
+nnoremap <F5> :buffers<CR>:buffer<Space>
 
 " }}}
 " Backups {{{
 set backup
-if has("win32") || has("win64")
-	set backupdir=~/vimfiles/backup
-	set directory=~/vimfiles/tmp
+if g:is_windows 
+	set backupdir=$USERPROFILE/vimfiles/backup
+	set directory=$USERPROFILE/vimfiles/tmp
 else
 	set backupdir=~/.vim/backup
 	set directory=~/.vim/tmp
 endif
 set writebackup
 " }}}
+" Ctags {{{
+
+" Search for "tags" in current directory, then searching up to root
+set tags=./tags,tags;
+
+" }}}
 " Custom Functions {{{
-function MakePrgBuildSh()
-	set makeprg=sh\ build.sh
-endfunction
 
-function MakePrgClangC()
-	set makeprg=clang\ -ansi\ -pedantic\ -pedantic-errors\ %
-endfunction
-
-function MakePrgClangCpp()
-	set makeprg=clang++\ -std=c++11\ -stdlib=libc++\ -pedantic\ -pedantic-errors\ %
+" Regenerate ctags
+function! CtagsGen()
+	if g:is_windows 
+		!dir /b /S *.c *.cpp *.h *.hpp > ctags -f tags
+	else
+		" TODO(zach):
+	endif
 endfunction
 
 " }}}
 " Misc. {{{
 
-set shell=/bin/sh				" set shell to sh
 set visualbell					" enable vim's internal visual bell
 set t_vb=						" set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
@@ -234,12 +278,13 @@ if has("gui_macvim")			" set macvim specific stuff
 	let macvim_skip_colorscheme=1
 	set lines=999 columns=999	" start fullscreen
 endif
-if has("win32") || has("win64")
+if g:is_windows 
 	au GUIEnter * simalt ~x
 endif
-set tags=./.tags,.tags;			" set tag file search
 " }}}
 " External configuration {{{
+
+" If vim is ran from a directory containing a local .vim file, source that file's configuration
 let b:thisdir=expand("%:p:h")
 let b:vim=b:thisdir."/.vim"
 if (filereadable(b:vim))
@@ -250,6 +295,18 @@ endif
 "
 set makeprg=sh\ build.sh
 
+" }}}
+" TEST {{{
+
+" This should call an external program
+if !exists("g:external_prog")
+	let g:external_prog = "/path/to/custom/external"
+endif
+
+function! TestCustomExternalProg()
+	echom system(g:custom_external_prog . " " . expand('%:p'))
+
+endfunction
 " }}}
 
 " vim:foldmethod=marker:foldlevel=0
