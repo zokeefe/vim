@@ -29,7 +29,6 @@ Plugin 'ctrlpvim/ctrlp.vim'
 "Plugin 'mtth/scratch.vim'
 Plugin 'rking/ag.vim'
 "Plugin 'incsearch.vim'
-"Plugin 'majutsushi/tagbar'
 Plugin 'derekwyatt/vim-fswitch'
 
 call vundle#end()
@@ -116,7 +115,11 @@ endif
 " }}}
 " Font {{{
 
-" set guifont=Liberation\ Mono\ Regular:h11
+if g:is_windows
+	set guifont=Liberation_Mono:h10
+else
+	set guifont=Liberation\ Mono\ Regular:h11
+endif
 
 " }}}
 " Colors {{{
@@ -205,6 +208,20 @@ nmap <Leader>sl :FSRight<CR>
 " Generate Ctags
 nnoremap <leader>t :call CtagsGen()<CR>
 
+" Switch buffer by number
+nnoremap <Leader>l :buffers<CR>:buffer<Space>
+
+" Toggle NERDTree
+nnoremap <Leader>n :NERDTreeToggle<CR>
+
+if g:is_windows
+	" Perforce - login
+	nnoremap <Leader>pl :!p4<Space>login<CR>
+
+	" Perforce - checkout current file
+	nnoremap <Leader>pc :!p4<Space>edit<Space>%<CR>
+endif
+
 " }}}
 " Keybindings {{{
 
@@ -254,7 +271,7 @@ set tags=./tags,tags;
 " Regenerate ctags
 function! CtagsGen()
 	if g:is_windows 
-		!dir /b /S *.c *.cpp *.h *.hpp > ctags -f tags
+		!ctags .
 	else
 		" TODO(zach):
 	endif
@@ -292,8 +309,14 @@ if (filereadable(b:vim))
 endif
 " }}}
 " Compilation {{{
-"
-set makeprg=sh\ build.sh
+
+if g:is_windows
+	set makeprg=build.bat
+	compiler msvc
+else
+	set makeprg=sh\ build.sh
+	compiler xcodebuild
+endif
 
 " }}}
 " TEST {{{
