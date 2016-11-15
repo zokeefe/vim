@@ -11,6 +11,13 @@ let g:project_uni = 1
 let g:project = g:project_uni
 
 "}}}
+" Environment variables {{{
+if g:is_windows
+	let $ZVIMRC = '$USERPROFILE/vimfiles/.vimrc'
+else
+	let $ZVIMRC = '~/.vim/.vimrc'
+endif
+" }}}
 " Plugins {{{
 
 filetype off					" Required, plugins available after
@@ -30,6 +37,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'rking/ag.vim'
 "Plugin 'incsearch.vim'
 Plugin 'derekwyatt/vim-fswitch'
+Plugin 'ap/vim-buftabline'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -124,15 +132,18 @@ endif
 " }}}
 " Colors {{{
 
-syntax enable
-colorscheme cmuratori
+if !has("gui_running") && g:is_windows
+	syntax off
+else
+	syntax enable
+	colorscheme cmuratori
 
-highlight clear Todo
-highlight BAD ctermfg=Red guifg=Red gui=bold,underline
-highlight IMPORTANT ctermfg=Yellow guifg=Yellow gui=bold,underline
-highlight OK ctermfg=DarkGreen guifg=DarkGreen gui=bold,underline
-highlight INTERESTING ctermfg=LightBlue guifg=LightBlue gui=bold,underline
-
+	highlight clear Todo
+	highlight BAD ctermfg=Red guifg=Red gui=bold,underline
+	highlight IMPORTANT ctermfg=Yellow guifg=Yellow gui=bold,underline
+	highlight OK ctermfg=DarkGreen guifg=DarkGreen gui=bold,underline
+	highlight INTERESTING ctermfg=LightBlue guifg=LightBlue gui=bold,underline
+endif
 
 " }}}
 " Autocmds {{{
@@ -206,7 +217,7 @@ nmap <Leader>sl :FSRight<CR>
 "nmap <Leader>s :wincmd r<CR>
 
 " Generate Ctags
-nnoremap <leader>t :call CtagsGen()<CR>
+" nnoremap <leader>t :call CtagsGen()<CR>
 
 " Switch buffer by number
 nnoremap <Leader>l :buffers<CR>:buffer<Space>
@@ -214,12 +225,21 @@ nnoremap <Leader>l :buffers<CR>:buffer<Space>
 " Toggle NERDTree
 nnoremap <Leader>n :NERDTreeToggle<CR>
 
+" Edit this file
+nnoremap <Leader>ev :e<Space>$ZVIMRC<CR>
+
+" Close current buffer without changing window layout
+nnoremap <Leader>c :Bclose<CR>
+
 if g:is_windows
 	" Perforce - login
 	nnoremap <Leader>pl :!p4<Space>login<CR>
 
 	" Perforce - checkout current file
-	nnoremap <Leader>pc :!p4<Space>edit<Space>%<CR>
+	nnoremap <Leader>pe :!p4<Space>edit<Space>%:p<CR>
+
+	" Perforce - add current file
+	nnoremap <Leader>pa :!p4<Space>add<Space>%:p<CR>
 endif
 
 " }}}
@@ -245,8 +265,12 @@ noremap <NUL> :ccl<CR>
 " Turn off highlighting after found target
 "nnoremap <silent><CR> :noh<CR><CR>
 
-" F5 shows list of buffers
-nnoremap <F5> :buffers<CR>:buffer<Space>
+" Ptag current word
+nmap <silent> <c-p><c-]> :ptag<Space><c-r><c-w><CR>
+
+" Buffer navigation
+nnoremap <Tab> :bnext<CR>
+nnoremap <s-Tab> :bprev<CR>
 
 " }}}
 " Backups {{{
