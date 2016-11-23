@@ -7,8 +7,9 @@ if has("win32") || has("win64")
 	let g:is_windows = 1
 endif
 
-let g:project_uni = 1
-let g:project = g:project_uni
+let g:project_pg  = 1
+let g:project_uni = 2
+let g:project = g:project_pg
 
 "}}}
 " Environment variables {{{
@@ -35,9 +36,9 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'ctrlpvim/ctrlp.vim'
 "Plugin 'mtth/scratch.vim'
 Plugin 'rking/ag.vim'
-"Plugin 'incsearch.vim'
+Plugin 'incsearch.vim'
 Plugin 'derekwyatt/vim-fswitch'
-Plugin 'ap/vim-buftabline'
+"Plugin 'ap/vim-buftabline'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -119,7 +120,6 @@ set hlsearch					" highligh searches
 if g:project == g:project_uni
 	set wildignore+=*/data/*,*/bin/*,*/lynx_proto/*,*/prototype/*,*/sharpmake/*,*/projects/*
 endif
-
 " }}}
 " Font {{{
 
@@ -269,8 +269,7 @@ noremap <NUL> :ccl<CR>
 nmap <silent> <c-p><c-]> :ptag<Space><c-r><c-w><CR>
 
 " Buffer navigation
-nnoremap <Tab> :bnext<CR>
-nnoremap <s-Tab> :bprev<CR>
+nnoremap <Tab> :e #<CR>
 
 " }}}
 " Backups {{{
