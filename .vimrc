@@ -37,7 +37,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'rking/ag.vim'
 "Plugin 'incsearch.vim'
 Plugin 'derekwyatt/vim-fswitch'
-Plugin 'ap/vim-buftabline'
+"Plugin 'ap/vim-buftabline'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -202,7 +202,7 @@ endif
 let g:mapleader=","
 
 " Make
-nmap <Leader>b :make<CR>
+nmap <Leader>b :ccl<CR>:make<CR>
 
 " Ctags + CtrlP
 nnoremap <leader>. :CtrlPTag<CR>
@@ -271,6 +271,19 @@ nmap <silent> <c-p><c-]> :ptag<Space><c-r><c-w><CR>
 " Buffer navigation
 nnoremap <Tab> :bnext<CR>
 nnoremap <s-Tab> :bprev<CR>
+
+" Search for selected text, forwards or backwards.
+" http://vim.wikia.com/wiki/Search_for_visually_selected_text
+vnoremap <silent> * :<C-U>
+  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+  \gvy/<C-R><C-R>=substitute(
+  \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+  \gV:call setreg('"', old_reg, old_regtype)<CR>
+vnoremap <silent> # :<C-U>
+  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+  \gvy?<C-R><C-R>=substitute(
+  \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+  \gV:call setreg('"', old_reg, old_regtype)<CR>
 
 " }}}
 " Backups {{{
