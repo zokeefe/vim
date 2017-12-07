@@ -7,9 +7,9 @@ if has("win32") || has("win64")
 	let g:is_windows = 1
 endif
 
-let g:project_pg  = 1
-let g:project_uni = 2
-let g:project = g:project_pg
+let g:project_none  = 1
+let g:project_tetra = 2
+let g:project = g:project_tetra
 
 "}}}
 " Environment variables {{{
@@ -52,14 +52,11 @@ let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_working_path_mode = 0
 let g:ctrlp_max_depth = 20
 let g:ctrlp_by_filename = 1
-let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:30,results:30'
+let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:30,results:500'
 " let g:ctrlp_use_caching = 0
 
 if g:is_windows
 	" dir is faster then ag on windows
-	" won't work with wildignore!
-	" TODO(zach): We should try to use Everything (es) to do this
-	" let g:ctrlp_user_command = 'dir %s /-n /b /s /a-d' 
 endif
 
 " }}}
@@ -117,8 +114,8 @@ set foldmethod=indent			" fold based on indent level
 set incsearch					" show search matches during typing
 set hlsearch					" highligh searches
 
-if g:project == g:project_uni
-	set wildignore+=*/data/*,*/bin/*,*/lynx_proto/*,*/prototype/*,*/sharpmake/*,*/projects/*
+if g:project == g:project_tetra
+	set wildignore+=*/data/*,*/data_override/*,*/data_parts/*,*/data_tmp/*,*/data_user/*,*/external/*,*/bin/*,*/buildmonkey/*,*/fastbuild/*,*/Output/*,*/online_backend/*,*/tools/*,*/sce_module/*,*/sce_sys/*
 endif
 " }}}
 " Font {{{
@@ -347,11 +344,15 @@ endif
 " Compilation {{{
 
 if g:is_windows
-	set makeprg=build.bat
-	compiler msvc
+	if g:project == g:project_tetra
+		compiler djinn
+	else
+		compiler msvc
+		set makeprg=build.bat
+	endif
 else
-	set makeprg=sh\ build.sh
 	compiler xcodebuild
+	set makeprg=sh\ build.sh
 endif
 
 " }}}
