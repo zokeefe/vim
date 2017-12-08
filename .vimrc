@@ -14,9 +14,9 @@ let g:project = g:project_tetra
 "}}}
 " Environment variables {{{
 if g:is_windows
-	let $ZVIMRC = '$USERPROFILE/vimfiles/.vimrc'
+	let $MYVIMRC = '$USERPROFILE/vimfiles/.vimrc'
 else
-	let $ZVIMRC = '~/.vim/.vimrc'
+	let $MYVIMRC = '~/.vim/.vimrc'
 endif
 " }}}
 " Plugins {{{
@@ -39,6 +39,8 @@ Plugin 'rking/ag.vim'
 Plugin 'incsearch.vim'
 Plugin 'derekwyatt/vim-fswitch'
 "Plugin 'ap/vim-buftabline'
+"Plugin 'tpope-vim-dispatch'
+Plugin 'skywind3000/asyncrun.vim'
 
 call vundle#end()
 filetype plugin indent on		" Required, plugins available after
@@ -95,6 +97,7 @@ set lazyredraw					" redraw only when we need to
 set fillchars+=vert:\ 			" remove '|' character in vsplit line
 set completeopt=menuone,preview " preview window always show prototype
 "set cursorline					" show cursor line
+let g:quickfix_height= 20
 " }}}
 " Editor settings {{{
 set backspace=indent,eol,start	" allow backspacing over everything in insert mode
@@ -154,11 +157,26 @@ if has("autocmd")
     autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
 
 	" Automatically open, but don't go to, Quickfix window
-	autocmd QUickFixCmdPost [^l]* nested copen
-	autocmd QUickFixCmdPost l* nested lopen
+
+		" autocmd QUickFixCmdPost [^l]* nested copen
+		" autocmd QUickFixCmdPost l* nested lopen
+
+		" augroup vimrc
+		" 	autocmd QuickFixCmdPost * botright copen 8
+		" augroup END
+
+		augroup vimrc
+			autocmd QuickFixCmdPost * call asyncrun#quickfix_toggle(g:quickfix_height, 1)
+		augroup END
 
 	" Automatically move Quickfix window to span bottom
 	autocmd Filetype qf wincmd J
+
+	" Display AsyncRun progress in status line
+	augroup QuickfixStatus
+		au! BufWinEnter quickfix setlocal 
+		\ statusline=%t\ [%{g:asyncrun_status}]\ %{exists('w:quickfix_title')?\ '\ '.w:quickfix_title\ :\ ''}\ %=%-15(%l,%c%V%)\ %P
+	augroup END
 
 	" Show cursorline in current window only
 	augroup CursorLine
@@ -199,7 +217,11 @@ endif
 let g:mapleader=","
 
 " Make
-nmap <Leader>b :ccl<CR>:make<CR>
+if g:project == g:project_tetra
+	nmap <Leader>b :AsyncRun build.bat<CR>
+else
+	nmap <Leader>b :ccl<CR>:make<CR>
+endif
 
 " Ctags + CtrlP
 nnoremap <leader>. :CtrlPTag<CR>
@@ -254,7 +276,7 @@ nmap <silent> <c-s> :wincmd r<CR>
 " Quickfix errors
 nmap <silent> <c-n> :cn<CR>
 nmap <silent> <c-m> :cp<CR>
-nmap <silent> <c-space> :ccl<CR>
+nmap <silent> <c-space> :call QuickfixToggle()<CR>
 
 " Workaround for console vim on OS X Terminal.app
 noremap <NUL> :ccl<CR>
@@ -310,6 +332,22 @@ function! CtagsGen()
 	endif
 endfunction
 
+" let g:quickfix_is_open = 0
+" 
+" function! QuickfixToggle()
+"     if g:quickfix_is_open
+"         cclose
+"         let g:quickfix_is_open = 0
+"     else
+"         copen
+"         let g:quickfix_is_open = 1
+"     endif
+" endfunction
+
+function! QuickfixToggle()
+	call asyncrun#quickfix_toggle(g:quickfix_height)
+endfunction
+
 " }}}
 " Misc. {{{
 
@@ -345,13 +383,13 @@ endif
 
 if g:is_windows
 	if g:project == g:project_tetra
-		compiler djinn
+		compiler! djinn
 	else
-		compiler msvc
+		compiler! msvc
 		set makeprg=build.bat
 	endif
 else
-	compiler xcodebuild
+	compiler! xcodebuild
 	set makeprg=sh\ build.sh
 endif
 
