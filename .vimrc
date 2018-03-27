@@ -35,13 +35,12 @@ else
 endif
 
 Plug 'scrooloose/nerdtree'
-"Plug 'mtth/scratch.vim'
-"Plug 'rking/ag.vim'
 Plug 'haya14busa/incsearch.vim'
 Plug 'derekwyatt/vim-fswitch'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
+Plug 'junegunn/goyo.vim'
 
 call plug#end()
 
@@ -115,7 +114,7 @@ set fillchars+=vert:\ 			" remove '|' character in vsplit line
 set completeopt=menuone,preview " preview window always show prototype
 "set cursorline					" show cursor line
 let g:quickfix_height= 20
-if !g:is_tabs 
+if g:is_tabs == 0
     set list
     set listchars=tab:>-
 endif
@@ -298,7 +297,7 @@ if has("autocmd")
     autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
     autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
-    if !g:is_tabs 
+    if g:is_tabs == 0
         autocmd Syntax * call matchadd('BAD_BG', '/\t/')
     endif
 
@@ -360,6 +359,12 @@ if has("autocmd")
 	" Try to prvent bell and screen flash for GUI
 	autocmd GUIEnter * set vb t_vb=
 	autocmd VimEnter * set vb t_vb=
+
+	" Recognize text files
+	au BufNewFile, BufRead *.txt set filetype=text
+
+	" Set prose mode for text files
+	au FileType text call ZooProseMode()
 
   endif
 endif
@@ -574,6 +579,46 @@ function! ZooDeleteInactiveBufs()
     echomsg nWipeouts . ' buffer(s) wiped out'
 endfunction
 command! Bdi :call DeleteInactiveBufs()
+
+function! ZooProseMode()
+    " a - autoformat paragraph when changed
+    " t - auto-wrap using textwidth
+    " w - defines paragraphs seperated by blank line
+	" n - recognize numbered lists
+	setlocal formatoptions+=atn
+
+	" Disable the status line
+    setlocal laststatus=0
+
+	" Set Canadian spelling
+    setlocal spell spelllang=en_ca
+
+    setlocal nonumber
+
+	" Longer value will be broken
+	setlocal textwidth=80
+
+	" Also wrap at end of window border
+	setlocal wrapmargin=0
+
+	" Disable autoindent
+	setlocal noautoindent
+	setlocal nocindent
+	setlocal nosmartindent
+	setlocal indentexpr=
+
+	" Make it look pretty
+	"setlocal foldcolumn=10
+	"setlocal columns=100
+
+
+	" Easy navigation
+	nmap <silent> <k> gk
+	nmap <silent> <j> gj
+
+	nmap <silent> <c-s> z=
+	nmap <silent> <s> z= 
+endfunction
 
 " }}}
 " Misc. {{{
