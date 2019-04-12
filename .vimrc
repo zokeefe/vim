@@ -44,7 +44,6 @@ endif
 
 Plug 'scrooloose/nerdtree'
 Plug 'haya14busa/incsearch.vim'
-"Plug 'vim-scripts/a.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
@@ -64,7 +63,7 @@ endif
 " }}}
 " CtrlP {{{
 "if !s:is_windows
-    let g:ctrlp_map = '<C-L>'
+    let g:ctrlp_map = '<c-l>'
     let g:ctrlp_cmd = 'CtrlP'
     " Nearest ancestor of the current file containing either .git, .hg, .svn,
     " .bzr, or other root markers
@@ -112,20 +111,20 @@ filetype plugin on
 filetype indent on
 " }}}
 " UI {{{
-"set number                        " show line numbers
-set nonumber                    " hide line numbers
-set ruler                        " show cursor position in status bar
-set showcmd                        " show typed command in status bar
-set ignorecase                    " case insensitive searching
-set smartcase                    " case sensitive when uppercase typed
-set showmatch                    " show matching bracket
-set wildmenu                    " completion with menu
-set laststatus=2                " use 2 lines for status bar
-set lazyredraw                    " redraw only when we need to
-set fillchars+=vert:\             " remove '|' character in vsplit line
-set completeopt=menuone,preview " preview window always show prototype
-"set cursorline                    " show cursor line
-set guioptions-=e                               " terminal-style tabs
+"set number                         " show line numbers
+set nonumber                        " hide line numbers
+set ruler                           " show cursor position in status bar
+set showcmd                         " show typed command in status bar
+set ignorecase                      " case insensitive searching
+set smartcase                       " case sensitive when uppercase typed
+set showmatch                       " show matching bracket
+set wildmenu                        " completion with menu
+set laststatus=2                    " use 2 lines for status bar
+set lazyredraw                      " redraw only when we need to
+set fillchars+=vert:\               " remove '|' character in vsplit line
+set completeopt=menuone,preview     " preview window always show prototype
+"set cursorline                     " show cursor line
+set guioptions-=e                   " terminal-style tabs
 let g:quickfix_height= 20
 if s:is_tabs == 0
     set list
@@ -342,9 +341,6 @@ if has("autocmd")
         augroup END
     endif
 
-    " VSplit window on startup
-    "autocmd VimEnter * vsplit
-    
     " Prevent auto-commenting newlines after comment
     au FileType * set fo-=c fo-=r fo-=o
     
@@ -352,12 +348,11 @@ if has("autocmd")
     autocmd CompleteDone * pclose
 
     " Auto generate ctags
+    " NOTE(zach): Disabled
     if s:is_windows 
-        " NOTE(zach): Disabled
         " au BufWritePost *.c,*.cpp,*.h,*.hpp !dir /b /S *.c *.cpp *.h *.hpp > ctags
     else
-        " TODO(zach):
-        au BufWritePost *.c,*.cpp,*.h,*.hpp,*.m !ctags -R %
+        " au BufWritePost *.c,*.cpp,*.h,*.hpp,*.m !ctags -R %
     endif
 
     " Jump to last known position in file
@@ -376,125 +371,125 @@ if has("autocmd")
   endif
 endif
 " }}}
-" LEADER shortcuts {{{
-let g:mapLEADER=","
+" leader shortcuts {{{
+let g:mapleader=","
 
 " AsyncRun
-nmap <LEADER>! :AsyncRun<SPACE>
+nmap <leader>! :AsyncRun<space>
 
 " Make
 if s:project == s:project_tetra
-    nmap <LEADER>b :AsyncRun build.bat<CR>
+    nmap <leader>b :AsyncRun build.bat<cr>
 else
-    nmap <LEADER>b :ccl<CR>:make<CR>
+    nmap <leader>b :ccl<cr>:make<CR>
 endif
 
 " Ctags + CtrlP
-nnoremap <LEADER>. :CtrlPTag<CR>
+nnoremap <leader>. :CtrlPTag<cr>
 
 " Jump between .c and .h files
-nmap <LEADER>ss :call HeaderToggle('')<CR>
-nmap <LEADER>sh :call HeaderToggle('wincmd h')<CR>
-nmap <LEADER>sl :call HeaderToggle('wincmd l')<CR>
+nmap <leader>ss :call HeaderToggle('')<cr>
+nmap <leader>sh :call HeaderToggle('wincmd h')<cr>
+nmap <leader>sl :call HeaderToggle('wincmd l')<cr>
 
 " Open scratch file
-nmap <LEADER>sf :e g:scratchfile<CR>
+nmap <leader>sf :e g:scratchfile<cr>
 
 " Swapping windows
-"nmap <LEADER>s :wincmd r<CR>
+"nmap <leader>s :wincmd r<cr>
 
 " Generate Ctags
-" nnoremap <LEADER>t :call CtagsGen()<CR>
+nnoremap <leader>t :call ZooCtagsGen()<cr>
 
 " Switch buffer by number
-nnoremap <LEADER>l :buffers<CR>:buffer<SPACE>
+nnoremap <leader>l :buffers<cr>:buffer<space>
 
 " Toggle NERDTree
-nnoremap <LEADER>n :NERDTreeToggle<CR>
+nnoremap <leader>n :NERDTreeToggle<cr>
 
 " Edit this file
-nnoremap <LEADER>ev :e<SPACE>$ZVIMRC<CR>
+nnoremap <leader>ev :e<space>$ZVIMRC<cr>
 
 " Close current buffer without changing window layout
-nnoremap <LEADER>c :Bclose<CR>
+nnoremap <leader>c :Bclose<cr>
 
 if s:is_windows
     " Perforce - login
-    nnoremap <LEADER>pl :!p4<SPACE>login<CR>
+    nnoremap <leader>pl :!p4<space>login<cr>
 
     " Perforce - checkout current file
-    nnoremap <LEADER>pe :!p4<SPACE>edit<SPACE>%:p<CR>
+    nnoremap <leader>pe :!p4<space>edit<space>%:p<cr>
 
     " Perforce - add current file
-    nnoremap <LEADER>pa :!p4<SPACE>add<SPACE>%:p<CR>
+    nnoremap <leader>pa :!p4<space>add<space>%:p<cr>
 
     " Perforce - mark current file for delete
-    nnoremap <LEADER>pd :!p4<SPACE>delete<SPACE>%:p<CR>
+    nnoremap <leader>pd :!p4<space>delete<space>%:p<cr>
 endif
 
 " Ag + AsyncRun
-nmap <LEADER>ag :AsyncRun<SPACE>ag<SPACE>
+nmap <leader>ag :AsyncRun<space>ag<space>
 
 if s:project == s:project_tetra
-    nmap <LEADER>r :AsyncRun run_game.bat<CR>
+    nmap <leader>r :AsyncRun run_game.bat<cr>
 endif
 
 " }}}
 " Keybindings {{{
 
-" inoremap <SILENT> iu <ESC>
-" cnoremap <SILENT> iu <C-c>
-" vnoremap <SILENT> iu <ESC>
-" nnoremap <SILENT> iu <ESC>
-" onoremap <SILENT> iu <ESC>
+" inoremap <silent> iu <esc>
+" cnoremap <silent> iu <C-c>
+" vnoremap <silent> iu <esc>
+" nnoremap <silent> iu <esc>
+" onoremap <silent> iu <esc>
 
 " Moving between windows
-nmap <SILENT> <C-K> :wincmd k<CR>
-nmap <SILENT> <C-J> :wincmd j<CR>
-nmap <SILENT> <C-H> :wincmd h<CR>
-nmap <SILENT> <C-L> :wincmd l<CR>
+nmap <silent> <c-k> :wincmd k<cr>
+nmap <silent> <c-j> :wincmd j<cr>
+nmap <silent> <c-h> :wincmd h<cr>
+nmap <silent> <c-l> :wincmd l<cr>
 
 " Swapping  windows
-nmap <SILENT> <C-S> :wincmd r<CR>
+nmap <silent> <c-s> :wincmd r<cr>
 
 " Quickfix errors
-nmap <SILENT> <C-N> :cn<CR>
-nmap <SILENT> <C-M> :cp<CR>
-nmap <SILENT> <C-SPACE> :call QuickfixToggle()<CR>
+nmap <silent> <c-n> :cn<cr>
+nmap <silent> <c-m> :cp<cr>
+nmap <silent> <c-space> :call QuickfixToggle()<cr>
 
 " Workaround for console vim on OS X Terminal.app
-noremap <NUL> :ccl<CR>
+noremap <NUL> :ccl<cr>
 
 " Turn off highlighting after found target
-"nnoremap <SILENT><CR> :noh<CR><CR>
+"nnoremap <silent><cr> :noh<CR><CR>
 
 " Ptag current word
-nmap <SILENT> <C-P><C-]> :ptag<SPACE><C-R><C-W><CR>
+nmap <silent> <c-p><c-]> :ptag<space><c-r><c-w><cr>
 
 " Buffer navigation
-nnoremap <Tab> :e #<CR>
+nnoremap <tab> :e #<cr>
 
 " Exit terminal
-tnoremap <ESC> <C-\><C-N>
+tnoremap <c-esc> <c-\><c-n>
 
 " Search for selected text, forwards or backwards.
 " http://vim.wikia.com/wiki/Search_for_visually_selected_text
-vnoremap <SILENT> * :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy/<C-R><C-R>=substitute(
-  \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>
-vnoremap <SILENT> # :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy?<C-R><C-R>=substitute(
-  \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>
+vnoremap <silent> * :<c-u>
+  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
+  \gvy/<c-r><c-r>=substitute(
+  \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+  \gV:call setreg('"', old_reg, old_regtype)<cr>
+vnoremap <silent> # :<c-u>
+  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
+  \gvy?<c-r><c-r>=substitute(
+  \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+  \gV:call setreg('"', old_reg, old_regtype)<cr>
 
 " Fzf all files
-noremap <SILENT> <C-P> :call fzf#run({'source' : 'type filelist.txt', 'down' : '40%', 'options' : '--preview "type {}"', 'sink' : 'e'})<CR>
+noremap <silent> <c-p> :call fzf#run({'source' : 'type filelist.txt', 'down' : '40%', 'options' : '--preview "type {}"', 'sink' : 'e'})<cr>
 
 " Fzf buffers
-noremap <SILENT> <C-B> :Buffers<CR>
+noremap <silent> <c-b> :Buffers<cr>
 
 " }}}
 " Backups {{{
@@ -543,7 +538,7 @@ function! QuickfixToggle()
     call asyncrun#quickfix_toggle(g:quickfix_height)
 endfunction
 
-" Corrects and adds missing CRCs
+" Corrects and adds missing crCs
 function! TetraStringIdTool()
     if(s:project == s:project_tetra)
        AsyncRun bin\tools\StringIDTool\StringIDTool.exe -s+ %
@@ -572,7 +567,7 @@ if(s:project == s:project_tetra)
 endfunction
 
 " Resets tab-based editor
-function! ZooSetTabEditorLocal()
+function! ZooSettabEditorLocal()
     setlocal tabstop=4
     setlocal noexpandtab
     setlocal nosmarttab
@@ -592,7 +587,7 @@ function! ZooDeleteInactiveBufs()
     for i in range(1, bufnr('$'))
         if bufexists(i) && !getbufvar(i,"&mod") && index(tablist, i) == -1
         "bufno exists AND isn't modified AND isn't in the list of buffers open in windows and tabs
-            SILENT exec 'bwipeout' i
+            silent exec 'bwipeout' i
             let nWipeouts = nWipeouts + 1
         endif
     endfor
@@ -628,11 +623,11 @@ function! ZooProseMode()
     "setlocal indentexpr=
 
     "" Easy navigation
-    "nmap <SILENT> <k> gk
-    "nmap <SILENT> <j> gj
+    "nmap <silent> <k> gk
+    "nmap <silent> <j> gj
 
-    "nmap <SILENT> <c-s> z=
-    "nmap <SILENT> <s> z= 
+    "nmap <silent> <c-s> z=
+    "nmap <silent> <s> z= 
 endfunction
 
 function! HeaderToggle(where)
@@ -679,24 +674,29 @@ endfunction
 " }}}
 " Misc. {{{
 
-set visualbell                    " enable vim's internal visual bell
-set t_vb=                        " set vim's internal bell to do nothing
+set visualbell                          " enable vim's internal visual bell
+set t_vb=                               " set vim's internal bell to do nothing
 set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
 if has("gui_running")
-    set guioptions-=L            " remove gvim left scrollbar
-    set guioptions-=R            " remove gvim right scrollbar
-    set guioptions-=l            " remove gvim left scrollbar extra
-    set guioptions-=r            " remove gvim right scrollbar extra
-    set guioptions-=m            " remove gvim menu 
-    set guioptions-=T            " remove gvim toolbar 
+    set guioptions-=L                   " remove gvim left scrollbar
+    set guioptions-=R                   " remove gvim right scrollbar
+    set guioptions-=l                   " remove gvim left scrollbar extra
+    set guioptions-=r                   " remove gvim right scrollbar extra
+    set guioptions-=m                   " remove gvim menu 
+    set guioptions-=T                   " remove gvim toolbar 
 endif
-if has("gui_macvim")            " set macvim specific stuff
+if has("gui_macvim")                    " set macvim specific stuff
     let macvim_skip_colorscheme=1
-    set lines=999 columns=999    " start fullscreen
+    set lines=999 columns=999           " start fullscreen
 endif
 if s:is_windows 
     au GUIEnter * simalt ~x
 endif
+
+" Example of multifile search and replace
+" :args `ag -l 'FOO'`
+" :argdo %s/FOO/BAR/g | update
+
 " }}}
 " External configuration {{{
 
