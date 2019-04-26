@@ -48,6 +48,12 @@ call plug#end()
 
 filetype plugin indent on        " Required, plugins available after
 " }}}
+" AsyncRun {{{
+
+let g:asyncrun_bell = 1             " ring bell when done
+let g:asyncrun_open = 20            " this is used for all quickfix heights 
+
+" }}}
 " fzf {{{ 
 if g:os == g:os_win
     set rtp+=$USERPROFILE/bin
@@ -93,7 +99,7 @@ set fillchars+=vert:\               " remove '|' character in vsplit line
 set completeopt=menuone,preview     " preview window always show prototype
 set cursorline                      " show cursor line
 set guioptions-=e                   " terminal-style tabs
-let g:quickfix_height= 20
+let g:quickfix_height=g:asyncrun_open
 set list                            " displays listchars
 set listchars=tab:>-                " show a tab as '>---'
 " }}}
@@ -154,15 +160,6 @@ if has("autocmd")
     autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
     autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
-
-    " Highlight bad tabs
-    autocmd Syntax * call matchadd('BAD_BG', '/\t/')
-
-    if s:project != s:project_tetra
-        augroup vimrc
-            autocmd QuickFixCmdPost * call asyncrun#quickfix_toggle(g:quickfix_height, 1)
-        augroup END
-    endif
 
     " Automatically move Quickfix window to span bottom
     autocmd Filetype qf wincmd J
@@ -295,7 +292,7 @@ nmap <silent> <c-m> :cp<cr>
 nmap <silent> <c-space> :call QuickfixToggle()<cr>
 
 " Workaround for console vim on OS X Terminal.app
-noremap <NUL> :ccl<cr>
+"noremap <NUL> :ccl<cr>
 
 " Ptag current word
 nmap <silent> <c-p><c-]> :ptag<space><c-r><c-w><cr>
