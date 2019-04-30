@@ -43,6 +43,7 @@ Plug 'haya14busa/incsearch.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
+Plug 'majutsushi/tagbar'
 
 call plug#end()
 
@@ -51,14 +52,14 @@ filetype plugin indent on        " Required, plugins available after
 " AsyncRun {{{
 
 let g:asyncrun_bell = 1             " ring bell when done
-let g:asyncrun_open = 20            " this is used for all quickfix heights 
+let g:asyncrun_open = 17            " this is used for all quickfix heights
 
 " }}}
 " fzf {{{ 
 if g:os == g:os_win
     set rtp+=$USERPROFILE/bin
     let g:fzf_layout = { 'down': '~40%' }
-    let g:fzf_tags_command = 'ctags -R --sort=yes code'
+    let g:fzf_tags_command = 'ctags -R --sort=yes .'
 endif
 
 " }}}
@@ -85,6 +86,7 @@ filetype plugin on
 filetype indent on
 " }}}
 " UI {{{
+let g:enable_cursorline=0
 "set number                         " show line numbers
 set nonumber                        " hide line numbers
 set ruler                           " show cursor position in status bar
@@ -97,11 +99,16 @@ set laststatus=2                    " use 2 lines for status bar
 set lazyredraw                      " redraw only when we need to
 set fillchars+=vert:\               " remove '|' character in vsplit line
 set completeopt=menuone,preview     " preview window always show prototype
-set cursorline                      " show cursor line
+if g:enable_cursorline
+    set cursorline                  " show cursor line
+else
+    set nocursorline
+endif
 set guioptions-=e                   " terminal-style tabs
 let g:quickfix_height=g:asyncrun_open
 set list                            " displays listchars
 set listchars=tab:>-                " show a tab as '>---'
+set colorcolumn=81                  " first INVALID column
 " }}}
 " Editor settings {{{
 set backspace=indent,eol,start  " allow backspacing over everything in insert mode
@@ -148,6 +155,7 @@ else
     highlight IMPORTANT ctermfg=Yellow guifg=Yellow gui=bold,underline
     highlight OK ctermfg=DarkGreen guifg=DarkGreen gui=bold,underline
     highlight INTERESTING ctermfg=LightBlue guifg=LightBlue gui=bold,underline
+    highlight ColorColumn ctermfg=Red ctermbg=NONE
 endif
 
 " }}}
@@ -161,26 +169,33 @@ if has("autocmd")
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
     autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
 
+    " Highlight status line based on mode
+    " Uses cmuratori colorscheme
+    autocmd InsertEnter * hi statusline ctermfg=88 guifg=#912C00
+    autocmd InsertLeave * hi StatusLine guifg=#161616 guibg=#7f7f7f guisp=#7f7f7f gui=NONE ctermfg=233 ctermbg=8 cterm=NONE
+
     " Automatically move Quickfix window to span bottom
     autocmd Filetype qf wincmd J
 
     " Display AsyncRun progress in status line
     augroup QuickfixStatus
-        au! BufWinEnter quickfix setlocal 
+        au! BufWinEnter quickfix setlocal
         \ statusline=%t\ [%{g:asyncrun_status}]\ %{exists('w:quickfix_title')?\ '\ '.w:quickfix_title\ :\ ''}\ %=%-15(%l,%c%V%)\ %P
     augroup END
 
     " Show cursorline in current window only
-    " Warning - may cause slow rendering speed with many buffers
-    augroup CursorLine
-        au!
-        au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-        au WinLeave * setlocal nocursorline
-    augroup END
+    if g:enable_cursorline
+        " Warning - may cause slow rendering speed with many buffers
+        augroup CursorLine
+            au!
+            au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+            au WinLeave * setlocal nocursorline
+        augroup END
+    endif
 
     " Prevent auto-commenting newlines after comment
     au FileType * set fo-=c fo-=r fo-=o
-    
+
     " Automatically close preview window
     autocmd CompleteDone * pclose
 
@@ -190,6 +205,7 @@ if has("autocmd")
         " au BufWritePost *.c,*.cpp,*.h,*.hpp !dir /b /S *.c *.cpp *.h *.hpp > ctags
     else
         " NOTE(zach): Requires Exuberant CTags
+        " TODO(zach): Use RTags or Universal-Tags
         " au BufWritePost *.c,*.cpp,*.h,*.hpp,*.m !ctags -R %
     endif
 
@@ -204,39 +220,39 @@ if has("autocmd")
     au BufNewFile, BufRead *.txt set filetype=text
 
     " Set prose mode for text files
-    "au FileType text call ZooProseMode()
+    "au FileType text call ZProseMode()
+
+    " Highlight trailing spaces
+    " http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+    match BAD_BG /\s\+$/
+    autocmd BufWinEnter * match BAD_BG /\s\+$/
+    autocmd InsertEnter * match BAD_BG /\s\+\%#\@<!$/
+    autocmd InsertLeave * match BAD_BG /\s\+$/
+    autocmd BufWinLeave * call clearmatches()
+
+
   endif
 endif
 " }}}
 " leader shortcuts {{{
 let g:mapleader=","
 
-" AsyncRun
-nmap <leader>! :AsyncRun<space>
-
 " Make
-let g:async_build = 0
-if g:async_build
-    " TODO(zokeefe): Need to use value of makeprg here
-    nmap <leader>b :AsyncRun build.bat<cr>
-else
-    " Close quickfix and make
-    nmap <leader>b :ccl<cr>:make<CR>
-endif
+nmap <leader>b :ZBuild<cr>
+
+" Search
+nmap <leader>s :ZSearch<space>
 
 " Ctags + CtrlP
 nnoremap <leader>. :CtrlPTag<cr>
 
 " Jump between .c and .h files
-nmap <leader>ss :call HeaderToggle('')<cr>
-nmap <leader>sh :call HeaderToggle('wincmd h')<cr>
-nmap <leader>sl :call HeaderToggle('wincmd l')<cr>
-
-" Open scratch file
-nmap <leader>sf :e g:scratchfile<cr>
+nmap <leader>ss :call ZHeaderToggle_('')<cr>
+nmap <leader>sh :call ZHeaderToggle_('wincmd h')<cr>
+nmap <leader>sl :call ZHeaderToggle_('wincmd l')<cr>
 
 " Generate Ctags
-nnoremap <leader>t :call ZooCtagsGen()<cr>
+nnoremap <leader>t :call ZCtagsGen()<cr>
 
 " Switch buffer by number
 nnoremap <leader>l :buffers<cr>:buffer<space>
@@ -244,8 +260,8 @@ nnoremap <leader>l :buffers<cr>:buffer<space>
 " Toggle NERDTree
 nnoremap <leader>n :NERDTreeToggle<cr>
 
-" Edit this file
-nnoremap <leader>ev :e<space>$ZVIMRC<cr>
+" Toggle Tagbar
+nnoremap <leader>t :TagbarToggle<cr>
 
 " Close current buffer without changing window layout
 nnoremap <leader>c :Bclose<cr>
@@ -264,8 +280,10 @@ if g:has_perforce
     nnoremap <leader>pd :!p4<space>delete<space>%:p<cr>
 endif
 
-" Ag + AsyncRun
-nmap <leader>ag :AsyncRun<space>ag<space>
+" Ag + AsyncRun. AsyncRun uses the global errorformat to populate
+" the quickfix window. As such, add the ag-vimgrep format to the list
+" before executing.
+nmap <leader>ag :set errorformat+=%f:%l:%c:%m<cr> :AsyncRun<space>ag --vimgrep --hidden<space>
 
 " }}}
 " Keybindings {{{
@@ -289,19 +307,13 @@ nmap <silent> <c-s> :wincmd r<cr>
 " Quickfix errors
 nmap <silent> <c-n> :cn<cr>
 nmap <silent> <c-m> :cp<cr>
-nmap <silent> <c-space> :call QuickfixToggle()<cr>
+nmap <silent> <c-@> :ZQuickfixToggle<cr>
 
 " Workaround for console vim on OS X Terminal.app
 "noremap <NUL> :ccl<cr>
 
 " Ptag current word
 nmap <silent> <c-p><c-]> :ptag<space><c-r><c-w><cr>
-
-" Buffer navigation
-nnoremap <tab> :e #<cr>
-
-" Exit terminal
-tnoremap <c-esc> <c-\><c-n>
 
 " Search for selected text, forwards or backwards.
 " http://vim.wikia.com/wiki/Search_for_visually_selected_text
@@ -335,41 +347,66 @@ endif
 set writebackup
 " }}}
 " Ctags {{{
+" NOTE(zokeefe): Use Universal-Ctags
 
 " Search for "tags" in current directory, then searching up to root
 set tags=./tags,tags;
 
 " }}}
-" Custom Functions {{{
+" Custom functions {{{
+
+" Build
+function! ZBuild_(sync)
+    if a:sync
+        ccl
+        make
+    else
+        AsyncRun -program=make
+    endif
+endfunction
+
+" Grep
+function! ZSearch_(search, direc)
+    if 0
+        execute "grep" . " " a:search . " " . a:direc
+    else
+        set errorformat+=%f:%l:%c:%m
+        execute "AsyncRun -program=grep " . a:search . " " . a:direc
+    endif
+endfunction
 
 " Regenerate ctags
-function! ZooCtagsGen()
-    AsyncRun ctags -R --sort=yes code
+function! ZCtagsGen_()
+    AsyncRun ctags -R --sort=yes .
+endfunction
+
+" Open scratch file
+function! ZOpenScratchFile_()
+    :e g:scratchfile<cr>
 endfunction
 
 " Copy current buffer path to clipboard
-function! ZooCopyBufferPathToClipboard()
+function! ZCopyBufferPathToClipboard_()
     let @+ = expand('%:p')
 endfunction
 
 " Convert all backwards slashes to forward slashes
-function! ZooBackToForwardSlashes()
+function! ZBackToForwardSlashes_()
     s/\\/\//g
 endfunction
 
 " Convert all forward slashes to backward slashes
-function! ZooForwardToBackSlashes()
+function! ZForwardToBackSlashes_()
     s/\//\\/g
 endfunction
 
 " Toggle quickfix
-function! QuickfixToggle()
+function! ZQuickfixToggle_()
     call asyncrun#quickfix_toggle(g:quickfix_height)
 endfunction
 
-
 " Regen file list
-function! ZooBuildFileList()
+function! ZBuildFzfFileList_()
     if g:os == g:os_win
         AsyncRun dir /S /B > .fzf_filelist.txt
     else
@@ -377,7 +414,7 @@ function! ZooBuildFileList()
     endif
 endfunction
 
-function! ZooDeleteInactiveBufs()
+function! ZDeleteInactiveBufs()
     "From tabpagebuflist() help, get a list of all buffers in all tabs
     let tablist = []
     for i in range(tabpagenr('$'))
@@ -396,9 +433,8 @@ function! ZooDeleteInactiveBufs()
     endfor
     echomsg nWipeouts . ' buffer(s) wiped out'
 endfunction
-command! Bdi :call DeleteInactiveBufs()
 
-function! ZooProseMode()
+function! ZProseMode()
     " a - autoformat paragraph when changed
     " t - auto-wrap using textwidth
     " w - defines paragraphs seperated by blank line
@@ -430,10 +466,10 @@ function! ZooProseMode()
     "nmap <silent> <j> gj
 
     "nmap <silent> <c-s> z=
-    "nmap <silent> <s> z= 
+    "nmap <silent> <s> z=
 endfunction
 
-function! HeaderToggle(where)
+function! ZHeaderToggle_(where)
     let file_path = expand("%")
     let file_name = expand("%<")
     let extension = split(file_path, '\.')[-1]
@@ -475,18 +511,35 @@ function! HeaderToggle(where)
 endfunction
 
 " }}}
+" {{{ Custom commands
+
+command! -nargs=0 -bang ZBuild call ZBuild_(<bang>0)
+command! -nargs=+ ZSearch call ZSearch_(<f-args>)
+command! -nargs=0 ZCtagsGen call ZCtagsGen_()
+command! -nargs=0 ZOpenScratchFile call ZOpenScratchFile_()
+command! -nargs=0 ZCopyBufferPathToClipboard call ZCopyBufferPathToClipboard_()
+command! -nargs=0 ZBackToForwardSlashes call ZBackToForwardSlashes_()
+command! -nargs=0 ZForwardToBackSlashes call ZForwardToBackSlashes_()
+command! -nargs=0 ZQuickfixToggle call ZQuickfixToggle_()
+command! -nargs=0 ZBuildFzfFileList call ZBuildFzfFileList_()
+
+" }}}
 " Misc. {{{
 
+set grepprg=ag\ --vimgrep\ --hidden\ $* " use ag
+set grepformat=%f:%l:%c:%m              " match ag with --vimgrep
 set visualbell                          " enable vim's internal visual bell
 set t_vb=                               " set vim's internal bell to do nothing
-set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
+if g:enable_cursorline
+    set guicursor=a:blinkon600-blinkoff400  " Slow down cursor blinking speed
+endif
 if has("gui_running")
     set guioptions-=L                   " remove gvim left scrollbar
     set guioptions-=R                   " remove gvim right scrollbar
-    set guioptions-=l                   " remove gvim left scrollbar extra
+    set guioptions-=l                   " remove gvim left scrollbar
     set guioptions-=r                   " remove gvim right scrollbar extra
-    set guioptions-=m                   " remove gvim menu 
-    set guioptions-=T                   " remove gvim toolbar 
+    set guioptions-=m                   " remove gvim menu
+    set guioptions-=T                   " remove gvim toolbar
 endif
 if has("gui_macvim")                    " set macvim specific stuff
     let macvim_skip_colorscheme=1
@@ -515,7 +568,7 @@ endif
 if g:os == g:os_win
     if s:project == s:project_none
         compiler! msvc
-        set makeprg=cl\ %
+        set makeprg=cl\ $VIM_FILEPATH
     else
         compiler! msvc
         set makeprg=build.bat
@@ -523,7 +576,7 @@ if g:os == g:os_win
 elseif g:os == g:os_mac
     if g:project == g:project_none
         compiler! clang
-        set makeprg=clang\ %
+        set makeprg=clang\ $VIM_FILEPATH
     else
         compiler! xcodebuild
         set makeprg=sh\ build.sh
