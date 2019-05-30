@@ -101,7 +101,7 @@ set cursorline                      " show cursor line
 set guioptions-=e                   " terminal-style tabs
 let g:quickfix_height=g:asyncrun_open
 set list                            " displays listchars
-set listchars=tab:>-                " show a tab as '>---'
+set list listchars=tab:»\ ,trail:°  " distinguish tab / trailing ws
 " }}}
 " Editor settings {{{
 set backspace=indent,eol,start  " allow backspacing over everything in insert mode
@@ -120,8 +120,8 @@ set foldnestmax=10              " 10 nested folds
 set foldmethod=marker           " fold based on marker
 " }}}
 " Searching settings {{{
-set incsearch                   " show search matches during typing
-set hlsearch                    " highligh searches
+set incsearch                       " show search matches during typing
+set hlsearch                        " highlight searches
 
 " To ignore search directories, use
 " set wildignore+=*/path/to/ignored/directory/*
