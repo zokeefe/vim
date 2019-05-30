@@ -39,11 +39,14 @@ else
 endif
 
 Plug 'scrooloose/nerdtree'
-Plug 'haya14busa/incsearch.vim'
+"Plug 'haya14busa/incsearch.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'majutsushi/tagbar'
+"Plug 'prabirshrestha/vim-lsp'
+"Plug 'prabirshrestha/async.vim' " needed by vim-lsp
+Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
 
 call plug#end()
 
@@ -439,34 +442,37 @@ function! ZProseMode()
     " t - auto-wrap using textwidth
     " w - defines paragraphs seperated by blank line
     " n - recognize numbered lists
-    "setlocal formatoptions+=atn
+    setlocal formatoptions+=atn
 
-    "" Disable the status line
-    "setlocal laststatus=0
+    " Disable the status line
+    setlocal laststatus=0
 
-    "" Set Canadian spelling
-    "setlocal spell spelllang=en_ca
+    " Set Canadian spelling
+    setlocal spell spelllang=en_ca
 
-    "setlocal nonumber
+    setlocal nonumber
 
-    "" Longer value will be broken
-    "setlocal textwidth=80
+    " Longer value will be broken
+    setlocal textwidth=80
 
-    "" Also wrap at end of window border
-    "setlocal wrapmargin=0
+    " Also wrap at end of window border
+    setlocal wrapmargin=0
+    setlocal wrap
+    setlocal linebreak
 
-    "" Disable autoindent
-    "setlocal noautoindent
-    "setlocal nocindent
-    "setlocal nosmartindent
-    "setlocal indentexpr=
+    " Disable autoindent
+    setlocal noexpandtab
+    setlocal noautoindent
+    setlocal nocindent
+    setlocal nosmartindent
+    setlocal indentexpr=
 
-    "" Easy navigation
-    "nmap <silent> <k> gk
-    "nmap <silent> <j> gj
+    " Easy navigation
+    nmap <silent> <k> gk
+    nmap <silent> <j> gj
 
-    "nmap <silent> <c-s> z=
-    "nmap <silent> <s> z=
+    nmap <silent> <c-s> z=
+    nmap <silent> <s> z=
 endfunction
 
 function! ZHeaderToggle_(where)
@@ -586,5 +592,16 @@ endif
 " }}}
 " TEST {{{
 " }}}
+
+highlight LspError ctermfg=Blue
+if executable('cquery')
+   au User lsp_setup call lsp#register_server({
+      \ 'name': 'cquery',
+      \ 'cmd': {server_info->['cquery']},
+      \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'compile_commands.json'))},
+      \ 'initialization_options': { 'cacheDirectory': './.cquerycache' },
+      \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
+      \ })
+endif
 
 " vim:foldmethod=marker:foldlevel=0
