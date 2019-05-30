@@ -18,7 +18,8 @@ let g:has_perforce = 0
 
 let g:project_none  = 1
 let g:project_tetra = 2
-let g:project = g:project_none
+let g:project_google = 3
+let g:project = g:project_google
 
 "}}}
 " Environment variables {{{
@@ -39,14 +40,16 @@ else
 endif
 
 Plug 'scrooloose/nerdtree'
-"Plug 'haya14busa/incsearch.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'majutsushi/tagbar'
 "Plug 'prabirshrestha/vim-lsp'
 "Plug 'prabirshrestha/async.vim' " needed by vim-lsp
-Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
+
+if g:project != g:project_google
+  Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
+endif
 
 call plug#end()
 
@@ -99,7 +102,7 @@ set smartcase                       " case sensitive when uppercase typed
 set showmatch                       " show matching bracket
 set wildmenu                        " completion with menu
 set laststatus=2                    " use 2 lines for status bar
-set lazyredraw                      " redraw only when we need to
+"set lazyredraw                      " redraw only when we need to
 set fillchars+=vert:\               " remove '|' character in vsplit line
 set completeopt=menuone,preview     " preview window always show prototype
 if g:enable_cursorline
@@ -110,8 +113,8 @@ endif
 set guioptions-=e                   " terminal-style tabs
 let g:quickfix_height=g:asyncrun_open
 set list                            " displays listchars
-set listchars=tab:>-                " show a tab as '>---'
 set colorcolumn=81                  " first INVALID column
+set list listchars=tab:»\ ,trail:°  " distinguish tab / trailing ws
 " }}}
 " Editor settings {{{
 set backspace=indent,eol,start  " allow backspacing over everything in insert mode
@@ -130,8 +133,8 @@ set foldnestmax=10              " 10 nested folds
 set foldmethod=marker           " fold based on marker
 " }}}
 " Searching settings {{{
-set incsearch                   " show search matches during typing
-set hlsearch                    " highligh searches
+set incsearch                       " show search matches during typing
+set hlsearch                        " highlight searches
 
 " To ignore search directories, use
 " set wildignore+=*/path/to/ignored/directory/*
@@ -593,15 +596,17 @@ endif
 " TEST {{{
 " }}}
 
-highlight LspError ctermfg=Blue
-if executable('cquery')
-   au User lsp_setup call lsp#register_server({
-      \ 'name': 'cquery',
-      \ 'cmd': {server_info->['cquery']},
-      \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'compile_commands.json'))},
-      \ 'initialization_options': { 'cacheDirectory': './.cquerycache' },
-      \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
-      \ })
+if g:project != g:project_google
+  highlight LspError ctermfg=Blue
+  if executable('cquery')
+     au User lsp_setup call lsp#register_server({
+        \ 'name': 'cquery',
+        \ 'cmd': {server_info->['cquery']},
+        \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'compile_commands.json'))},
+        \ 'initialization_options': { 'cacheDirectory': './.cquerycache' },
+        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
+        \ })
+  endif
 endif
 
 " vim:foldmethod=marker:foldlevel=0
