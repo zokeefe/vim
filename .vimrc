@@ -14,12 +14,9 @@ if (g:os != g:os_win) && (g:os != g:os_mac) && (g:os != g:os_lin)
     throw "Unknown OS"
 endif
 
-let g:has_perforce = 0
-
 let g:project_none  = 1
-let g:project_tetra = 2
-let g:project_google = 3
-let g:project = g:project_google
+let g:project_linux = 2
+let g:project = g:project_linux
 
 "}}}
 " Environment variables {{{
@@ -43,17 +40,15 @@ Plug 'scrooloose/nerdtree'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
-Plug 'majutsushi/tagbar'
-"Plug 'prabirshrestha/vim-lsp'
-"Plug 'prabirshrestha/async.vim' " needed by vim-lsp
-
-if g:project != g:project_google
-  Plug 'neoclide/coc.nvim', {'do': './install.sh nightly'}
-endif
+"Plug 'easymotion/vim-easymotion'
 
 call plug#end()
 
 filetype plugin indent on        " Required, plugins available after
+" }}}
+" Enable filetype plugins {{{
+filetype plugin on
+filetype indent on
 " }}}
 " AsyncRun {{{
 
@@ -69,30 +64,34 @@ if g:os == g:os_win
 endif
 
 " }}}
-" CtrlP {{{
-    " Using fzf instead
-    "let g:ctrlp_map = '<c-l>'
-    "let g:ctrlp_cmd = 'CtrlP'
-    "" Nearest ancestor of the current file containing either .git, .hg, .svn,
-    "" .bzr, or other root markers
-    "let g:ctrlp_max_files=0
-    "let g:ctrlp_working_path_mode = 0
-    "let g:ctrlp_max_depth = 20
-    "let g:ctrlp_by_filename = 1
-    "let g:ctrlp_by_regexp = 1
-    "let g:ctrlp_match_window = 'bottom,order:btt,min:1,max:30,results:500'
-    "" let g:ctrlp_use_caching = 0
+" {{{ cscope
+if has("cscope")
+  " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
+  set cscopetag
+
+  " check cscope for definition of a symbol before checking ctags: set to 1
+  " if you want the reverse search order.
+  set csto=0
+
+  " add any cscope database in current directory
+  if filereadable("cscope.out")
+    cs add cscope.out  
+  endif
+
+  " show msg when any other cscope db added
+  set cscopeverbose  
+endif
+" }}}
+" Ctags {{{
+" NOTE(zokeefe): Use Universal-Ctags
+
+" Search for "tags" in current directory, then searching up to root
+set tags=./tags,tags;
 
 " }}}
-" Scratch {{{
-let g:scratchfile = s:vimfilesdir . '.scratch'
-" }}}
-" Enable filetype plugins {{{
-filetype plugin on
-filetype indent on
-" }}}
 " UI {{{
-let g:enable_cursorline=0
+let g:enable_cursorline=1
+set scrolloff=5
 "set number                         " show line numbers
 set nonumber                        " hide line numbers
 set ruler                           " show cursor position in status bar
@@ -102,7 +101,7 @@ set smartcase                       " case sensitive when uppercase typed
 set showmatch                       " show matching bracket
 set wildmenu                        " completion with menu
 set laststatus=2                    " use 2 lines for status bar
-"set lazyredraw                      " redraw only when we need to
+set lazyredraw                      " redraw only when we need to
 set fillchars+=vert:\               " remove '|' character in vsplit line
 set completeopt=menuone,preview     " preview window always show prototype
 if g:enable_cursorline
@@ -112,19 +111,46 @@ else
 endif
 set guioptions-=e                   " terminal-style tabs
 let g:quickfix_height=g:asyncrun_open
-set list                            " displays listchars
+"set list                            " displays listchars
 set colorcolumn=81                  " first INVALID column
-set list listchars=tab:»\ ,trail:°  " distinguish tab / trailing ws
+"set list listchars=tab:»\ ,trail:°  " distinguish tab / trailing ws
+"set list listchars=tab:»\           " distinguish tab / trailing ws
 " }}}
 " Editor settings {{{
-set backspace=indent,eol,start  " allow backspacing over everything in insert mode
-set autoindent                  " copy indent from current line when starting new line
-set shiftwidth=4                " spaces for autoindents
-set tabstop=4                   " number of visual spaces per tab
-set softtabstop=4               " number of spaces in tab when editing
-"set noexpandtab                " does not insert spaces instead of tabs
-set expandtab                   " inserts spaces instead of tabs
-set smarttab                    " go to next indent of next tabstop when whitespace to left
+set backspace=indent,eol,start  " allow backspacing over everything in insert
+                                " mode
+set autoindent                  " copy indent from current line when starting
+                                " new line
+" Linux kernel style.
+if g:project == g:project_linux
+    set tabstop=8
+    set shiftwidth=8
+    set softtabstop=8
+    set textwidth=80
+    set noexpandtab
+    set cindent
+    set cinoptions=:0,l1,t0,g0,(0
+    syn keyword cOperator likely unlikely
+    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64
+    syn keyword cType __u8 __u16 __u32 __u64 __s8 __s16 __s32 __s64
+    highlight default link LinuxError ErrorMsg
+    syn match LinuxError / \+\ze\t/			" spaces before tab
+    syn match LinuxError /\%>80v[^()\{\}\[\]<>]\+/	" virtual column 81
+else
+    set shiftwidth=4                " spaces for autoindents
+    set tabstop=4                   " number of visual spaces per tab
+    set softtabstop=4               " number of spaces in tab when editing
+    "set noexpandtab                " does not insert spaces instead of tabs
+    set expandtab                   " inserts spaces instead of tabs
+    set smarttab                    " go to next indent of next tabstop when
+                                    " whitespace to left
+endif
+" }}}
+" {{{ Sound settings
+set noerrorbells                " disbale sounds
+set novisualbell
+set t_vb=
+set tm=500
 " }}}
 " Folding {{{
 set foldenable                  " enable folding
@@ -156,6 +182,7 @@ else
     colorscheme cmuratori
 
     highlight clear Todo
+    " TODO(zokeefe): Why do these get cleared?
     highlight BAD ctermfg=Red guifg=Red gui=bold,underline
     highlight BAD_BG ctermbg=Red guibg=Red gui=bold,underline
     highlight IMPORTANT ctermfg=Yellow guifg=Yellow gui=bold,underline
@@ -170,7 +197,7 @@ if has("autocmd")
   if v:version > 701
 
     " Highlighting keywords
-    autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\)')
+    autocmd Syntax * call matchadd('BAD', '\W\zs\(TODO\|REVIEW\|QUESTION\)')
     autocmd Syntax * call matchadd('IMPORTANT', '\W\zs\(IMPORTANT\)')
     autocmd Syntax * call matchadd('OK', '\W\zs\(NOTE\)')
     autocmd Syntax * call matchadd('INTERESTING', '\W\zs\(IDEA\|STUDY\)')
@@ -222,12 +249,6 @@ if has("autocmd")
     autocmd GUIEnter * set vb t_vb=
     autocmd VimEnter * set vb t_vb=
 
-    " Recognize text files
-    au BufNewFile, BufRead *.txt set filetype=text
-
-    " Set prose mode for text files
-    "au FileType text call ZProseMode()
-
     " Highlight trailing spaces
     " http://vim.wikia.com/wiki/Highlight_unwanted_spaces
     match BAD_BG /\s\+$/
@@ -235,8 +256,6 @@ if has("autocmd")
     autocmd InsertEnter * match BAD_BG /\s\+\%#\@<!$/
     autocmd InsertLeave * match BAD_BG /\s\+$/
     autocmd BufWinLeave * call clearmatches()
-
-
   endif
 endif
 " }}}
@@ -249,16 +268,10 @@ nmap <leader>b :ZBuild<cr>
 " Search
 nmap <leader>s :ZSearch<space>
 
-" Ctags + CtrlP
-nnoremap <leader>. :CtrlPTag<cr>
-
 " Jump between .c and .h files
 nmap <leader>ss :call ZHeaderToggle_('')<cr>
 nmap <leader>sh :call ZHeaderToggle_('wincmd h')<cr>
 nmap <leader>sl :call ZHeaderToggle_('wincmd l')<cr>
-
-" Generate Ctags
-nnoremap <leader>t :call ZCtagsGen()<cr>
 
 " Switch buffer by number
 nnoremap <leader>l :buffers<cr>:buffer<space>
@@ -266,25 +279,8 @@ nnoremap <leader>l :buffers<cr>:buffer<space>
 " Toggle NERDTree
 nnoremap <leader>n :NERDTreeToggle<cr>
 
-" Toggle Tagbar
-nnoremap <leader>t :TagbarToggle<cr>
-
 " Close current buffer without changing window layout
 nnoremap <leader>c :Bclose<cr>
-
-if g:has_perforce
-    " Perforce - login
-    nnoremap <leader>pl :!p4<space>login<cr>
-
-    " Perforce - checkout current file
-    nnoremap <leader>pe :!p4<space>edit<space>%:p<cr>
-
-    " Perforce - add current file
-    nnoremap <leader>pa :!p4<space>add<space>%:p<cr>
-
-    " Perforce - mark current file for delete
-    nnoremap <leader>pd :!p4<space>delete<space>%:p<cr>
-endif
 
 " Ag + AsyncRun. AsyncRun uses the global errorformat to populate
 " the quickfix window. As such, add the ag-vimgrep format to the list
@@ -294,12 +290,15 @@ nmap <leader>ag :set errorformat+=%f:%l:%c:%m<cr> :AsyncRun<space>ag --vimgrep -
 " }}}
 " Keybindings {{{
 
-" Attempt to not use <esc>
-" inoremap <silent> iu <esc>
-" cnoremap <silent> iu <C-c>
-" vnoremap <silent> iu <esc>
-" nnoremap <silent> iu <esc>
-" onoremap <silent> iu <esc>
+inoremap <silent> kj <esc>
+cnoremap <silent> kj <esc>
+vnoremap <silent> kj <esc>
+"nnoremap <silent> kj <esc>
+onoremap <silent> kj <esc>
+inoremap <silent> <c-c> <esc>
+cnoremap <silent> <c-c> <esc>
+vnoremap <silent> <c-c> <esc>
+onoremap <silent> <c-c> <esc>
 
 " Moving between windows
 nmap <silent> <c-k> :wincmd k<cr>
@@ -315,12 +314,6 @@ nmap <silent> <c-n> :cn<cr>
 nmap <silent> <c-m> :cp<cr>
 nmap <silent> <c-@> :ZQuickfixToggle<cr>
 
-" Workaround for console vim on OS X Terminal.app
-"noremap <NUL> :ccl<cr>
-
-" Ptag current word
-nmap <silent> <c-p><c-]> :ptag<space><c-r><c-w><cr>
-
 " Search for selected text, forwards or backwards.
 " http://vim.wikia.com/wiki/Search_for_visually_selected_text
 vnoremap <silent> * :<c-u>
@@ -334,29 +327,19 @@ vnoremap <silent> # :<c-u>
   \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
   \gV:call setreg('"', old_reg, old_regtype)<cr>
 
-" Fzf all files
-noremap <silent> <c-p> :call fzf#run({'source' : 'type .fzf_filelist.txt', 'down' : '40%', 'options' : '--preview "type {}"', 'sink' : 'e'})<cr>
+" Fzf all files using cscope file list
+  noremap <silent> <c-p> :call fzf#run({'source' : 'cat cscope.files', 'down' : '40%', 'sink' : 'e'})<cr>
 
 " Fzf buffers
 noremap <silent> <c-b> :Buffers<cr>
 
 " }}}
 " Backups {{{
-set backup
-if g:os == g:os_win
-    set backupdir=$USERPROFILE/vimfiles/backup
-    set directory=$USERPROFILE/vimfiles/tmp
-else
-    set backupdir=~/.vim/backup
-    set directory=~/.vim/tmp
-endif
-set writebackup
-" }}}
-" Ctags {{{
-" NOTE(zokeefe): Use Universal-Ctags
 
-" Search for "tags" in current directory, then searching up to root
-set tags=./tags,tags;
+" disable - use source control
+set nobackup
+set nowb
+set noswapfile
 
 " }}}
 " Custom functions {{{
@@ -386,24 +369,9 @@ function! ZCtagsGen_()
     AsyncRun ctags -R --sort=yes .
 endfunction
 
-" Open scratch file
-function! ZOpenScratchFile_()
-    :e g:scratchfile<cr>
-endfunction
-
 " Copy current buffer path to clipboard
 function! ZCopyBufferPathToClipboard_()
     let @+ = expand('%:p')
-endfunction
-
-" Convert all backwards slashes to forward slashes
-function! ZBackToForwardSlashes_()
-    s/\\/\//g
-endfunction
-
-" Convert all forward slashes to backward slashes
-function! ZForwardToBackSlashes_()
-    s/\//\\/g
 endfunction
 
 " Toggle quickfix
@@ -411,14 +379,32 @@ function! ZQuickfixToggle_()
     call asyncrun#quickfix_toggle(g:quickfix_height)
 endfunction
 
-" Regen file list
-function! ZBuildFzfFileList_()
-    if g:os == g:os_win
-        AsyncRun dir /S /B > .fzf_filelist.txt
+" Build db
+function! ZBuildDbs_()
+  if g:os == g:os_win
+  else
+    if filereadable("~/bin/build_linux_tags_cscope.sh")
+      AsyncRun sh ~/bin/build_linux_tags_cscope.sh
+
+      " reinit cscope
+      cs reset
+      cs add cscope.out
     else
-        AsyncRun ls -1 -R > .fzf_filelist.txt
+      throw "~/bin/build_linux_tags_cscope.sh not found"
     endif
+  endif
 endfunction
+
+" Regen file list
+"function! ZBuildFzfFileList_()
+"    if g:os == g:os_win
+"        AsyncRun dir /S /B > .fzf_filelist.txt
+"    elseif g:project == g:project_linux
+"        AsyncRun sh ~/Scripts/build_g3_filelist.sh
+"    else
+"        AsyncRun find . > .fzf_filelist.txt
+"    endif
+"endfunction
 
 function! ZDeleteInactiveBufs()
     "From tabpagebuflist() help, get a list of all buffers in all tabs
@@ -438,44 +424,6 @@ function! ZDeleteInactiveBufs()
         endif
     endfor
     echomsg nWipeouts . ' buffer(s) wiped out'
-endfunction
-
-function! ZProseMode()
-    " a - autoformat paragraph when changed
-    " t - auto-wrap using textwidth
-    " w - defines paragraphs seperated by blank line
-    " n - recognize numbered lists
-    setlocal formatoptions+=atn
-
-    " Disable the status line
-    setlocal laststatus=0
-
-    " Set Canadian spelling
-    setlocal spell spelllang=en_ca
-
-    setlocal nonumber
-
-    " Longer value will be broken
-    setlocal textwidth=80
-
-    " Also wrap at end of window border
-    setlocal wrapmargin=0
-    setlocal wrap
-    setlocal linebreak
-
-    " Disable autoindent
-    setlocal noexpandtab
-    setlocal noautoindent
-    setlocal nocindent
-    setlocal nosmartindent
-    setlocal indentexpr=
-
-    " Easy navigation
-    nmap <silent> <k> gk
-    nmap <silent> <j> gj
-
-    nmap <silent> <c-s> z=
-    nmap <silent> <s> z=
 endfunction
 
 function! ZHeaderToggle_(where)
@@ -524,13 +472,9 @@ endfunction
 
 command! -nargs=0 -bang ZBuild call ZBuild_(<bang>0)
 command! -nargs=+ ZSearch call ZSearch_(<f-args>)
-command! -nargs=0 ZCtagsGen call ZCtagsGen_()
-command! -nargs=0 ZOpenScratchFile call ZOpenScratchFile_()
 command! -nargs=0 ZCopyBufferPathToClipboard call ZCopyBufferPathToClipboard_()
-command! -nargs=0 ZBackToForwardSlashes call ZBackToForwardSlashes_()
-command! -nargs=0 ZForwardToBackSlashes call ZForwardToBackSlashes_()
 command! -nargs=0 ZQuickfixToggle call ZQuickfixToggle_()
-command! -nargs=0 ZBuildFzfFileList call ZBuildFzfFileList_()
+command! -nargs=0 ZBuildDbs call ZBuildDbs_()
 
 " }}}
 " Misc. {{{
@@ -590,23 +534,13 @@ elseif g:os == g:os_mac
         compiler! xcodebuild
         set makeprg=sh\ build.sh
     endif
+elseif g:os == g:os_lin
+    compiler! gcc
+    set makeprg=sh\ ~/bin/build_linux.sh
 endif
 
 " }}}
 " TEST {{{
 " }}}
-
-if g:project != g:project_google
-  highlight LspError ctermfg=Blue
-  if executable('cquery')
-     au User lsp_setup call lsp#register_server({
-        \ 'name': 'cquery',
-        \ 'cmd': {server_info->['cquery']},
-        \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'compile_commands.json'))},
-        \ 'initialization_options': { 'cacheDirectory': './.cquerycache' },
-        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
-        \ })
-  endif
-endif
 
 " vim:foldmethod=marker:foldlevel=0
