@@ -1,0 +1,24 @@
+[submodule "nerdtree"]
+	path = nerdtree
+	url = https://github.com/preservim/nerdtree.git
+[submodule "asyncrun.vim"]
+	path = asyncrun.vim
+	url = https://github.com/skywind3000/asyncrun.vim.git
+[submodule "fzf"]
+	path = fzf
+	url = https://github.com/junegunn/fzf.git
+[submodule "fzf.vim"]
+	path = fzf.vim
+	url = https://github.com/junegunn/fzf.vim.git
+[submodule "pack/zokeefe/start/nerdtree"]
+	path = pack/zokeefe/start/nerdtree
+	url = https://github.com/preservim/nerdtree.git
+[submodule "pack/zokeefe/start/asyncrun"]
+	path = pack/zokeefe/start/asyncrun
+	url = https://github.com/skywind3000/asyncrun.vim.git
+[submodule "pack/zokeefe/start/fzf"]
+	path = pack/zokeefe/start/fzf
+	url = https://github.com/junegunn/fzf.git
+[submodule "pack/zokeefe/start/fzf.vim"]
+	path = pack/zokeefe/start/fzf.vim
+	url = https://github.com/junegunn/fzf.vim.git
